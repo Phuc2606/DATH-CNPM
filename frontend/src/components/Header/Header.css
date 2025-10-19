@@ -1,0 +1,37 @@
+/* Header styles */
+.site-header {
+  background: #fff;
+  border-bottom: 1px solid rgba(238, 242, 247, 1);
+  height: 80px;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;     
+  justify-content: space-between;
+  height: 100%;            
+  padding: 0 1rem;        
+}
+
+.brand{
+    font-weight: 800;
+    color: #0f172a;
+    font-size: 1.125rem;
+}
+
+.nav{
+    display: flex;
+    gap: 1rem;
+}
+
+.nav-link{
+    color: #374151;
+    font-weight: 600;
+}
+
+.header-actions .btn{
+    background: transparent;
+    border: 1px solid #e6e7eb;
+    padding: .4rem .6rem;
+    border-radius: 8px;
+}

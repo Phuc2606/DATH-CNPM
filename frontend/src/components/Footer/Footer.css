@@ -1,0 +1,8 @@
+/* Footer styles */
+.site-footer{ background:#fff; border-top:1px solid #eef2f7; padding:1rem 0; }
+.footer-inner{ display:flex; justify-content:space-between; align-items:center; gap:1rem }
+.footer-links{ color:#6b7280 }
+
+@media (max-width:700px){
+  .footer-inner{ flex-direction:column; text-align:center }
+}
