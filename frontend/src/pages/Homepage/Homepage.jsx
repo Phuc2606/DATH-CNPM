@@ -2,6 +2,18 @@ import React, { useState } from 'react'
 import Header from '../../components/Header/Header'
 import Footer from '../../components/Footer/Footer'
 import './Homepage.css'
+import {
+  PiLaptopFill,
+  PiHeadphonesFill,
+  PiWatchFill,
+  PiSpeakerHighFill,
+  PiDeviceMobileFill,
+  PiDeviceTabletFill,
+  PiCameraFill,
+  PiGameControllerFill,
+  PiGridFourBold
+} from "react-icons/pi"
+
 
 const sampleProducts = [
   { id: 1, name: 'Tai nghe không dây X1', price: '899.000₫', img: '/assets/images/laptop_lenovo_legion.jpg', category: 'cat-1' },
@@ -12,14 +24,19 @@ const sampleProducts = [
 ]
 
 const categories = [
-  { id: 'cat-1', name: 'Âm thanh', icon: '🔊' },
-  { id: 'cat-2', name: 'Thiết bị đeo', icon: '⌚' },
-  { id: 'cat-3', name: 'Phụ kiện', icon: '🔌' },
-  { id: 'cat-4', name: 'Mới về', icon: '🆕' },
+  { id: 'cat-1', name: 'Laptop', icon: <PiLaptopFill /> },
+  { id: 'cat-2', name: 'Thiết bị đeo', icon: <PiWatchFill /> },
+  { id: 'cat-3', name: 'Âm thanh', icon: <PiHeadphonesFill /> },
+  { id: 'cat-4', name: 'Loa', icon: <PiSpeakerHighFill /> },
+  { id: 'cat-5', name: 'Điện thoại', icon: <PiDeviceMobileFill /> },
+  { id: 'cat-6', name: 'Tablet', icon: <PiDeviceTabletFill /> },
+  { id: 'cat-7', name: 'Camera', icon: <PiCameraFill /> },
+  { id: 'cat-8', name: 'Gaming', icon: <PiGameControllerFill /> },
 ]
 
 const Homepage = () => {
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const [moreOpen, setMoreOpen] = useState(false)
 
   const filteredProducts = sampleProducts.filter(p => selectedCategory === 'all' || p.category === selectedCategory)
 
@@ -33,7 +50,7 @@ const Homepage = () => {
             <div className="hp-hero__inner">
               <div className="hp-hero__content">
               <h1 className="hp-title">Công nghệ cho cuộc sống tốt hơn</h1>
-              <p className="hp-subtitle">Khuyến mãi đến 30% cho tai nghe và phụ kiện. Giao hàng toàn quốc.</p>
+              <p className="hp-subtitle">Khuyến mãi đến 30% cho Laptop và phụ kiện. Giao hàng toàn quốc.</p>
               <div className="hp-hero__actions">
                 <button className="btn btn--primary">Mua ngay</button>
                 <button className="btn btn--ghost">Xem thêm</button>
@@ -58,21 +75,47 @@ const Homepage = () => {
           <div className="container">
             <div className="category-controls">
               <h2 className="section-title">Danh mục</h2>
-              <select className="category-select" value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
-                <option value="all">Tất cả</option>
-                {categories.map(c => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
             </div>
 
             <div className="cats-grid">
-              {categories.map(cat => (
-                <button key={cat.id} className="cat-card" onClick={() => setSelectedCategory(cat.id)}>
-                  <div className="cat-card__icon">{cat.icon}</div>
-                  <div className="cat-card__name">{cat.name}</div>
-                </button>
-              ))}
+              {(() => {
+                const maxVisible = 5
+                const visible = categories.slice(0, maxVisible)
+                const extra = categories.slice(maxVisible)
+                return (
+                  <>
+                   <button key="all" className="cat-card" onClick={() => { setSelectedCategory('all'); setMoreOpen(false) }}>
+                        <div className="cat-card__icon"><PiGridFourBold /></div>
+                        <div className="cat-card__name">Tất cả</div>
+                  </button>
+                    {visible.map(cat => (
+                      <button key={cat.id} className="cat-card" onClick={() => { setSelectedCategory(cat.id); setMoreOpen(false) }}>
+                        <div className="cat-card__icon">{cat.icon}</div>
+                        <div className="cat-card__name">{cat.name}</div>
+                      </button>
+                    ))}
+
+                    {extra.length > 0 && (
+                      <div className="more-dropdown">
+                        <button className="cat-card more-btn" onClick={() => setMoreOpen(!moreOpen)} aria-expanded={moreOpen}>
+                          <div className="cat-card__icon">⋯</div>
+                          <div className="cat-card__name">Thêm</div>
+                        </button>
+                        {moreOpen && (
+                          <div className="more-menu" role="menu">
+                            {extra.map(cat => (
+                              <button key={cat.id} className="cat-card" onClick={() => { setSelectedCategory(cat.id); setMoreOpen(false) }} role="menuitem">
+                                <div className="cat-card__icon">{cat.icon}</div>
+                                <div className="cat-card__name">{cat.name}</div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )
+              })()}
             </div>
           </div>
         </section>

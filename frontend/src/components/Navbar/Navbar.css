@@ -1,7 +1,8 @@
-.navbar{
+/* ===== NAVBAR ===== */
+.navbar {
   display: flex;
   align-items: center;
-  justify-content: space-between; 
+  justify-content: space-between;
   padding: 0 1rem;
   gap: 1rem;
 }
@@ -12,41 +13,80 @@
   align-items: center;
 }
 
-.nav-item{
-    color: #374151;
-    font-weight: 600;
+.nav-item {
+  color: #e2e8f0;
+  font-weight: 600;
+  transition: color 0.2s;
 }
 
-.nav-actions{
-    display: flex;
-    gap: .5rem;
-    align-items: center;
+.nav-item:hover {
+  color: #38bdf8;
 }
 
-.nav-search input{
-    padding: .4rem .6rem;
-    border-radius: 8px;
-    border: 1px solid #e6e7eb;
-    width: 300px;
+.nav-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
-.cart-btn{
-    background: transparent;
-    border: 0;
-    font-size: 1.2rem;
-    cursor: pointer;
+.nav-search input {
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  transition: box-shadow 0.2s;
+  width: 280px;
 }
 
-.hamburger{
+.nav-search{ position: relative }
+.nav-search__icon{ position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color:#9ca3af; font-size:1.05rem; cursor:pointer }
+.nav-search input{ padding-left:36px }
+
+.nav-search input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #38bdf8;
+}
+
+.cart-btn {
+  color: #e2e8f0;
+  background: transparent;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.cart-btn:hover {
+  color: #38bdf8;
+}
+
+.hamburger {
+  display: none;
+  background: transparent;
+  border: 0;
+  font-size: 1.2rem;
+  color: #e2e8f0;
+}
+
+@media (max-width: 700px) {
+  .nav-links {
     display: none;
-    background: transparent;
-    border: 0;
-    font-size: 1.2rem;
-}
-
-@media (max-width:700px){
-    .nav-links{ display: none }
-    .nav-links.open{ display:flex; position:absolute; left:0; right:0; top:64px; background:#fff; padding:1rem; flex-direction:column; gap:.5rem }
-    .hamburger{ display:inline-block }
-    .nav-search{ display:none }
+  }
+  .nav-links.open {
+    display: flex;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 64px;
+    background: #0f172a;
+    padding: 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .hamburger {
+    display: inline-block;
+  }
+  .nav-search {
+    display: none;
+  }
 }
