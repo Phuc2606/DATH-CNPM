@@ -1,8 +1,7 @@
-/* ===== HOMEPAGE ===== */
 :root {
-  --color-primary: #38bdf8; /* xanh dương sáng */
+  --color-primary: #38bdf8;
   --color-primary-dark: #0ea5e9;
-  --color-dark: #0f172a; /* xanh than */
+  --color-dark: #0f172a;
   --color-bg-light: #f8fafc;
   --color-muted: #64748b;
   --color-border: #e2e8f0;
@@ -183,8 +182,8 @@
 }
 
 .more-dropdown {
-  position: relative;
-  display: flex;
+  position: relative; 
+  display: flex; 
   align-items: center;
 }
 

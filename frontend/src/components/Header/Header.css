@@ -1,6 +1,6 @@
 /* ===== HEADER ===== */
 .site-header {
-  background: #0f172a; /* xanh than */
+  background: #0f172a;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   height: 80px;
 }
@@ -16,7 +16,7 @@
 .brand {
   font-weight: 800;
   font-size: 1.25rem;
-  color: #38bdf8; /* xanh dương neon */
+  color: #38bdf8;
 }
 
 .header-actions .btn {
@@ -34,7 +34,11 @@
   transform: translateY(-1px);
 }
 
-.header-actions { display:flex; gap:.5rem; align-items:center }
+.header-actions { 
+    display:flex; 
+    gap:.5rem; 
+    align-items:center 
+}
 
 .header-actions .cart-btn{ 
     background:transparent; 
@@ -45,4 +49,6 @@
     cursor:pointer 
 }
 
-.header-actions .cart-btn:hover{ background: rgba(255,255,255,0.03);  }
+.header-actions .cart-btn:hover{ 
+    background: rgba(255,255,255,0.03);  
+}
