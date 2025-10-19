@@ -6,13 +6,15 @@ import { categories } from '../../data/categories';
 import { products } from '../../data/products';
 import * as PiIcons from 'react-icons/pi';
 import { PiGridFourBold } from "react-icons/pi";
+import FilteredProducts from '../../components/FilteredProducts/FilteredProducts';
 
 const Homepage = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [query, setQuery] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [sort, setSort] = useState('default');
   const [moreOpen, setMoreOpen] = useState(false);
-  const filteredProducts = products.filter(
-    (p) => selectedCategory === 'all' || p.category === selectedCategory
-  );
 
   return (
     <div className="homepage-root">
@@ -52,7 +54,6 @@ const Homepage = () => {
         <section className="hp-categories">
           <div className="container">
             <h2 className="section-title">Danh mục</h2>
-
             <div className="cats-grid">
               {(() => {
                 const maxVisible = 5;
@@ -66,7 +67,7 @@ const Homepage = () => {
                     </button>
 
                     {visible.map(cat => {
-                      const Icon = PiIcons[cat.icon]; 
+                      const Icon = PiIcons[cat.icon];
                       return (
                         <button key={cat.id} className="cat-card" onClick={() => setSelectedCategory(cat.id)}>
                           <div className="cat-card__icon">{Icon && <Icon />}</div>
@@ -76,31 +77,31 @@ const Homepage = () => {
                     })}
 
                     {extra.length > 0 && (
-                  <div className="more-dropdown">
-                    <button className="cat-card more-btn" onClick={() => setMoreOpen(!moreOpen)} aria-expanded={moreOpen}>
-                      <div className="cat-card__icon">⋯</div>
-                      <div className="cat-card__name">Thêm</div>
-                    </button>
-                    {moreOpen && (
-                      <div className="more-menu" role="menu">
-                        {extra.map(cat => {
-                          const Icon = PiIcons[cat.icon];
-                          return (
-                            <button
-                              key={cat.id}
-                              className="cat-card"
-                              onClick={() => { setSelectedCategory(cat.id); setMoreOpen(false); }}
-                              role="menuitem"
-                            >
-                              <div className="cat-card__icon">{Icon && <Icon />}</div>
-                              <div className="cat-card__name">{cat.name}</div>
-                            </button>
-                          );
-                        })}
+                      <div className="more-dropdown">
+                        <button className="cat-card more-btn" onClick={() => setMoreOpen(!moreOpen)} aria-expanded={moreOpen}>
+                          <div className="cat-card__icon">⋯</div>
+                          <div className="cat-card__name">Thêm</div>
+                        </button>
+                        {moreOpen && (
+                          <div className="more-menu" role="menu">
+                            {extra.map(cat => {
+                              const Icon = PiIcons[cat.icon];
+                              return (
+                                <button
+                                  key={cat.id}
+                                  className="cat-card"
+                                  onClick={() => { setSelectedCategory(cat.id); setMoreOpen(false); }}
+                                  role="menuitem"
+                                >
+                                  <div className="cat-card__icon">{Icon && <Icon />}</div>
+                                  <div className="cat-card__name">{cat.name}</div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                     )}
-                  </div>
-                )}
                   </>
                 );
               })()}
@@ -116,26 +117,20 @@ const Homepage = () => {
               <a className="link-muted" href="#">Xem tất cả</a>
             </div>
 
-            <div className="products-grid">
-              {filteredProducts.map(p => (
-                <article key={p.id} className="product-card">
-                  <div className="product-card__media">
-                    <img
-                      src={p.img}
-                      alt={p.name}
-                      onError={(e) => { e.target.src = '/assets/placeholder.png'; }}
-                    />
-                  </div>
-                  <div className="product-card__body">
-                    <h3 className="product-name">{p.name}</h3>
-                    <div className="product-footer">
-                      <div className="product-price">{p.price}</div>
-                      <button className="btn btn--small">Thêm vào giỏ</button>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
+            {/* <FilteredProducts /> */}
+            <FilteredProducts
+              products={products}
+              selectedCategory={selectedCategory}
+              query={query}
+              setQuery={setQuery}
+              minPrice={minPrice}
+              setMinPrice={setMinPrice}
+              maxPrice={maxPrice}
+              setMaxPrice={setMaxPrice}
+              sort={sort}
+              setSort={setSort}
+              maxItems={12}
+            />
           </div>
         </section>
 

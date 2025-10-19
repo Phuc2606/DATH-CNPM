@@ -1,7 +1,7 @@
 /* ===== FOOTER ===== */
 .site-footer {
-  background: #0f172a;
-  color: #f8fafc;
+  background: var(--color-dark);
+  color: var(--color-bg);
   padding: 3rem 0 1rem;
   font-size: 0.95rem;
 }
@@ -10,21 +10,21 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 2rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--overlay-white-10);
   padding-bottom: 2rem;
 }
 
 .footer-logo {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #38bdf8;
+  color: var(--color-primary);
   margin-bottom: 0.75rem;
 }
 
 .footer-col h4 {
   font-weight: 600;
   margin-bottom: 0.75rem;
-  color: #f1f5f9;
+  color: var(--color-bg);
 }
 
 .footer-col ul {
@@ -38,23 +38,23 @@
 }
 
 .footer-col ul li a {
-  color: #94a3b8;
+  color: var(--color-muted);
   text-decoration: none;
   transition: color 0.2s;
 }
 
 .footer-col ul li a:hover {
-  color: #38bdf8;
+  color: var(--color-primary);
 }
 
 .footer-about p,
 .footer-contact p {
-  color: #cbd5e1;
+  color: var(--color-border-muted);
   margin-bottom: 0.5rem;
 }
 
 .footer-contact a {
-  color: #38bdf8;
+  color: var(--color-primary);
   text-decoration: none;
 }
 
@@ -65,19 +65,19 @@
 }
 
 .footer-socials a {
-  color: #f8fafc;
+  color: var(--color-bg);
   font-size: 1.25rem;
   transition: color 0.2s, transform 0.2s;
 }
 
 .footer-socials a:hover {
-  color: #38bdf8;
+  color: var(--color-primary);
   transform: translateY(-2px);
 }
 
 .footer-bottom {
   text-align: center;
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 0.85rem;
   padding-top: 1rem;
 }

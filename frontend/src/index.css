@@ -1,19 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
-
-:root {
-  --color-bg: #f8fafc;
-  --color-text: #1e293b;
-  --color-primary: #38bdf8;
-  --color-primary-hover: #3b82f6;
-  --color-dark: #0f172a;
-  --color-border: #e2e8f0;
-}
+@import './styles/theme.css';
 
 * {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Inter', sans-serif;
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

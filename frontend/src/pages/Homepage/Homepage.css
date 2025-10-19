@@ -1,11 +1,4 @@
-:root {
-  --color-primary: #38bdf8;
-  --color-primary-dark: #0ea5e9;
-  --color-dark: #0f172a;
-  --color-bg-light: #f8fafc;
-  --color-muted: #64748b;
-  --color-border: #e2e8f0;
-}
+/* color variables are centralized in src/styles/theme.css */
 
 /* Layout */
 .homepage-root {
@@ -28,7 +21,7 @@
 
 /* ===== Hero Section ===== */
 .hp-hero {
-  background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(14,165,233,0.05));
+  background: linear-gradient(135deg, var(--hero-grad-start), var(--hero-grad-end));
   padding: 4rem 0;
 }
 
@@ -73,7 +66,7 @@
 
 .btn--primary {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-surface);
 }
 
 .btn--primary:hover {
@@ -88,7 +81,7 @@
 }
 
 .btn--ghost:hover {
-  background: rgba(56,189,248,0.1);
+  background: var(--color-primary-subtle);
 }
 
 .btn--small {
@@ -109,14 +102,14 @@
   width: 260px;
   height: 300px;
   border-radius: 20px;
-  background: linear-gradient(180deg, #fff, #f3f4f6);
-  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.1);
+  background: linear-gradient(180deg, var(--color-bg), var(--color-surface-variant));
+  box-shadow: var(--shadow-medium);
 }
 
 .hp-hero-img {
   max-width: 100%;
   border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(2, 6, 23, 0.08);
+  box-shadow: var(--shadow-strong);
   display: block;
 }
 
@@ -125,7 +118,7 @@
   left: 8px;
   top: 8px;
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-surface);
   padding: 0.35rem 0.6rem;
   border-radius: 8px;
   font-weight: 700;
@@ -155,16 +148,16 @@
   gap: 0.75rem;
   padding: 0.8rem 1.1rem;
   border-radius: 12px;
-  background: #fff;
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+  box-shadow: var(--shadow-light);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .cat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow-strong);
   border-color: var(--color-primary);
 }
 
@@ -192,26 +185,27 @@
   align-items: center;
   padding: 0.6rem 0.9rem;
   border-radius: 12px;
-  background: #fff;
-  border: 1px solid rgba(15, 23, 42, 0.06);
-  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.04);
+  background: var(--Color-surface);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-light);
   cursor: pointer;
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 .more-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(2, 6, 23, 0.06);
+  box-shadow: var(--shadow-medium);
 }
 
 .more-menu {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  background: #fff;
-  border: 1px solid #e6e7eb;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 10px;
-  box-shadow: 0 12px 40px rgba(2, 6, 23, 0.08);
+  box-shadow: var(--shadow-strong);
   padding: 0.5rem;
   display: flex;
   flex-direction: column;
@@ -226,8 +220,8 @@
   gap: 0.75rem;
   padding: 0.6rem 1rem;
   border-radius: 10px;
-  background: #fff;
-  border: 1px solid rgba(15, 23, 42, 0.05);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-muted);
   text-align: left;
   width: 100%;
   box-sizing: border-box;
@@ -236,7 +230,7 @@
 
 .more-menu .cat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 22px rgba(2, 6, 23, 0.05);
+  box-shadow: var(--shadow-light);
 }
 
 /* ===== Products ===== */
@@ -248,7 +242,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
 }
 
 .link-muted {
@@ -267,10 +260,10 @@
 }
 
 .product-card {
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+  box-shadow: var(--shadow-medium);
   display: flex;
   flex-direction: column;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -278,7 +271,7 @@
 
 .product-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow-strong);
 }
 
 .product-card__media img {
@@ -310,9 +303,9 @@
 
 /* ===== Newsletter ===== */
 .hp-newsletter {
-  background: linear-gradient(90deg, #eff6ff, #f0f9ff);
+  background: linear-gradient(90deg, var(--newsletter-grad-start), var(--newsletter-grad-end));
   padding: 2.5rem 0;
-  border-top: 1px solid rgba(15, 23, 42, 0.05);
+  border-top: 1px solid var(--color-border);
 }
 
 .newsletter-inner {
@@ -323,13 +316,13 @@
 }
 
 .newsletter-inner h3 {
-  color: #0f172a;
+  color: var(--color-dark);
   font-size: 1.25rem;
   margin-bottom: 0.25rem;
 }
 
 .newsletter-inner p {
-  color: #475569;
+  color: var(--color-muted-alt);
   font-weight: 500;
   margin: 0;
 }
@@ -342,13 +335,13 @@
 .newsletter-form input {
   padding: 0.6rem 0.75rem;
   border-radius: 8px;
-  border: 1px solid #cbd5e1;
-  background: #fff;
+  border: 1px solid var(--color-border-muted);
+  background: var(--color-surface);
 }
 
 .newsletter-form button {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-surface);
   border: none;
   border-radius: 8px;
   padding: 0.6rem 1rem;
@@ -358,7 +351,7 @@
 }
 
 .newsletter-form button:hover {
-  background: #0b8c8b; /* hoặc dùng đậm hơn một chút của primary */
+  background: var(--color-primary-dark); /* hoặc dùng đậm hơn một chút của primary */
 }
 
 @media (max-width: 700px) {

@@ -1,7 +1,7 @@
 /* ===== HEADER ===== */
 .site-header {
-  background: #0f172a;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--color-dark);
+  border-bottom: 1px solid var(--overlay-white-05);
   height: 80px;
 }
 
@@ -16,13 +16,13 @@
 .brand {
   font-weight: 800;
   font-size: 1.25rem;
-  color: #38bdf8;
+  color: var(--color-primary);
 }
 
 .header-actions .btn {
-  background: #38bdf8;
+  background: var(--color-primary);
   border: none;
-  color: #fff;
+  color: var(--color-surface);
   padding: 0.45rem 0.9rem;
   border-radius: 8px;
   font-weight: 600;
@@ -30,7 +30,7 @@
 }
 
 .header-actions .btn:hover {
-  background: #3b82f6;
+  background: var(--color-primary-dark);
   transform: translateY(-1px);
 }
 
@@ -41,14 +41,14 @@
 }
 
 .header-actions .cart-btn{ 
-    background:transparent; 
-    border:0; color:#fff; 
-    padding:.35rem .45rem; 
-    border-radius:6px; 
-    font-size:1.25rem; 
-    cursor:pointer 
+  background:transparent; 
+  border:0; color:var(--color-surface); 
+  padding:.35rem .45rem; 
+  border-radius:6px; 
+  font-size:1.25rem; 
+  cursor:pointer 
 }
 
 .header-actions .cart-btn:hover{ 
-    background: rgba(255,255,255,0.03);  
+  background: var(--overlay-white-03); 
 }
