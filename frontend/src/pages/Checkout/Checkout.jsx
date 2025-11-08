@@ -32,6 +32,9 @@ const Checkout = () => {
     return method === 'express' ? base + 30000 : base;
   }
 
+  // if cart is empty we don't charge shipping — keep totals zero and avoid confusing the user
+  const shippingCost = cart.length ? shippingCostFor(shippingRegion, shippingMethod) : 0;
+
   function applyPromo() {
     const code = promo.trim().toUpperCase();
     if (code === 'SALE10') { setDiscountPct(10); return true; }
@@ -171,13 +174,20 @@ const Checkout = () => {
                 <div className="form-row">
                   <div className="field">
                     <label className="field-label">Tháng/Năm</label>
+                    <div style={{gap:8}}>
                     <input placeholder="MM/YY" value={card.expiry} onChange={e=>setCard({...card, expiry:e.target.value})} />
                   </div>
-                  <div className="field">
-                    <label className="field-label">CVC</label>
-                    <input placeholder="CVC" value={card.cvc} onChange={e=>setCard({...card, cvc:e.target.value})} />
                   </div>
                 </div>
+                <div className="form-row">
+                     <div className="field">
+                    <label className="field-label">CVC</label>
+                    <div style={{gap:8}}>
+                    <input placeholder="CVC" value={card.cvc} onChange={e=>setCard({...card, cvc:e.target.value})} />
+                  </div>
+                  </div>
+                </div>
+
                 <div className="field">
                   <label className="field-label">Tên chủ thẻ</label>
                   <input placeholder="Nguyen Van A" value={card.name} onChange={e=>setCard({...card, name:e.target.value})} />
@@ -196,7 +206,7 @@ const Checkout = () => {
             </div>
 
             <div className="form-actions">
-              <button className="btn btn--primary" type="submit" disabled={processing}>{processing ? 'Đang xử lý...' : 'Xác nhận & Thanh toán'}</button>
+              <button className="btn btn--primary" type="submit" disabled={processing || cart.length === 0}>{processing ? 'Đang xử lý...' : 'Xác nhận & Thanh toán'}</button>
             </div>
           </form>
 
@@ -221,8 +231,8 @@ const Checkout = () => {
 
             <div className="summary-row"><span>Tạm tính</span><strong>{fmt(subtotal)}</strong></div>
             <div className="summary-row"><span>Giảm ({discountPct}%)</span><strong>-{fmt(Math.round((subtotal*discountPct)/100))}</strong></div>
-            <div className="summary-row"><span>Phí vận chuyển</span><strong>{fmt(shippingCostFor(shippingRegion, shippingMethod))}</strong></div>
-            <div className="summary-total"><span>Tổng</span><strong>{fmt(subtotal - Math.round((subtotal*discountPct)/100) + shippingCostFor(shippingRegion, shippingMethod))}</strong></div>
+            <div className="summary-row"><span>Phí vận chuyển</span><strong>{fmt(shippingCost)}</strong></div>
+            <div className="summary-total"><span>Tổng</span><strong>{fmt(subtotal - Math.round((subtotal*discountPct)/100) + shippingCost)}</strong></div>
           </aside>
         </div>
       </div>
