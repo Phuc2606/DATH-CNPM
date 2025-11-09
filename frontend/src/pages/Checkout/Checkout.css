@@ -41,7 +41,7 @@
 
 /* Field alignment helpers */
 .field { display:flex; align-items:flex-start; gap:16px; margin-bottom:0.5rem; }
-.field-label { width:150px; flex-shrink:0; color:var(--color-muted); font-size:0.95rem; padding-top:8px; }
+.field-label { width:100px; flex-shrink:0; color:var(--color-muted); font-size:0.95rem; padding-top:8px; }
 .field > input, .field > select { flex:1; align-self:stretch; }
 /* normalize input heights so fields align vertically */
 .checkout-form input, .checkout-form select { height:44px; box-sizing:border-box; }
