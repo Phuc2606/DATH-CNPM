@@ -1,0 +1,92 @@
+/* ===== FOOTER ===== */
+.site-footer {
+  background: var(--color-dark);
+  color: var(--color-bg);
+  padding: 3rem 0 1rem;
+  font-size: 0.95rem;
+}
+
+.footer-main {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+  border-bottom: 1px solid var(--overlay-white-10);
+  padding-bottom: 2rem;
+}
+
+.footer-logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 0.75rem;
+}
+
+.footer-col h4 {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--color-bg);
+}
+
+.footer-col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-col ul li {
+  margin-bottom: 0.5rem;
+}
+
+.footer-col ul li a {
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-col ul li a:hover {
+  color: var(--color-primary);
+}
+
+.footer-about p,
+.footer-contact p {
+  color: var(--color-border-muted);
+  margin-bottom: 0.5rem;
+}
+
+.footer-contact a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.footer-socials {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.footer-socials a {
+  color: var(--color-bg);
+  font-size: 1.25rem;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.footer-socials a:hover {
+  color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+.footer-bottom {
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  padding-top: 1rem;
+}
+
+@media (max-width: 700px) {
+  .footer-main {
+    text-align: center;
+  }
+  .footer-socials {
+    justify-content: center;
+  }
+}

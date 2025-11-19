@@ -1,0 +1,37 @@
+:root {
+  /* Primary palette */
+  --color-primary: #38bdf8;
+  --color-primary-dark: #0ea5e9;
+
+  /* Neutrals */
+  --color-bg: #f8fafc;
+  --color-bg-light: #f8fafc;
+  --color-text: #1e293b;
+  --color-dark: #0f172a;
+  --color-muted: #64748b;
+  --color-border: #e2e8f0;
+
+  /* Misc */
+  --shadow-strong: 0 12px 40px rgba(2,6,23,0.08);
+  --shadow-medium: 0 8px 30px rgba(15,23,42,0.08);
+  --shadow-light: 0 6px 18px rgba(15,23,42,0.05);
+
+  /* Surfaces */
+  --color-surface: #ffffff;
+  --color-surface-variant: #f3f4f6;
+
+  /* Gradients */
+  --hero-grad-start: rgba(56,189,248,0.08);
+  --hero-grad-end: rgba(14,165,233,0.04);
+  --color-primary-subtle: rgba(56,189,248,0.06);
+  --newsletter-grad-start: #eff6ff;
+  --newsletter-grad-end: #f0f9ff;
+
+  /* Additional muted shades */
+  --color-muted-alt: #475569;
+  --color-border-muted: #cbd5e1;
+  /* overlay helpers for dark surfaces */
+  --overlay-white-03: rgba(255,255,255,0.03);
+  --overlay-white-05: rgba(255,255,255,0.05);
+  --overlay-white-10: rgba(255,255,255,0.1);
+}
