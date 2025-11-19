@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import './FilteredProducts.css';
+import useCart from '../../context/useCart';
 
 function parsePrice(priceStr) {
   if (!priceStr) return 0;
@@ -63,6 +64,8 @@ const FilteredProducts = ({
       });
   }, [processedProducts, selectedCategory, query, minPrice, maxPrice, sort, brand]);
 
+  const { addItem } = useCart();
+
   return (
     <div className="fp-root">
       {/* Controls */}
@@ -121,7 +124,7 @@ const FilteredProducts = ({
               <h3 className="product-name">{p.name}</h3>
               <div className="product-footer">
                 <div className="product-price">{p.price}</div>
-                <button className="btn btn--small">Thêm vào giỏ</button>
+                <button className="btn btn--small" onClick={() => addItem(p, 1)}>Thêm vào giỏ</button>
               </div>
             </div>
           </article>

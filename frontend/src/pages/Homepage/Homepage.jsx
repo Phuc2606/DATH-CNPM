@@ -48,7 +48,7 @@ const Homepage = () => {
               </div>
             </div>
           </div>
-        </section>
+      </section>
 
         {/* === Categories === */}
         <section className="hp-categories">
