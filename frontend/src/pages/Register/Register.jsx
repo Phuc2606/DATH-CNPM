@@ -1,24 +1,29 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { HiEye, HiEyeOff } from "react-icons/hi";
+import { register } from "../../services/authService";
+import AuthLogo from "../../components/Auth/AuthLogo";
 
 export default function Register() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    username: "",
+    fullName: "",
     email: "",
     password: "",
     repassword: "",
+    phone: "",
   });
   const [errors, setErrors] = useState({
-    username: "",
+    fullName: "",
     email: "",
     password: "",
     repassword: "",
+    phone: "",
   });
 
   const [showPassword, setShowPassword] = useState(false);
   const [showRepassword, setShowRepassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   function isValidEmail(email) {
     const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -54,27 +59,14 @@ export default function Register() {
     setErrors(newErrors);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = { ...errors };
     let hasError = false;
-    const users = JSON.parse(localStorage.getItem("users")) || [];
 
-    // Check username
-    if (form.username.length < 6 || form.username.length > 15) {
-      newErrors.username = "*Tên tài khoản phải có 6-15 ký tự";
-      hasError = true;
-    } else {
-      const exists = users.some((u) => u.username === form.username);
-      if (exists) {
-        newErrors.username = "*Tên đăng nhập đã được sử dụng!";
-        hasError = true;
-      }
-    }
-
-    // Check password
-    if (form.password.length < 8 || form.password.length > 16) {
-      newErrors.password = "*Mật khẩu phải dài 8-16 ký tự";
+    // Check fullName
+    if (!form.fullName || form.fullName.trim().length === 0) {
+      newErrors.fullName = "*Tên đầy đủ không được để trống";
       hasError = true;
     }
 
@@ -82,12 +74,12 @@ export default function Register() {
     if (!isValidEmail(form.email)) {
       newErrors.email = "*Email không đúng định dạng!";
       hasError = true;
-    } else {
-      const exists = users.some((u) => u.email === form.email);
-      if (exists) {
-        newErrors.email = "*Email đã được sử dụng!";
-        hasError = true;
-      }
+    }
+
+    // Check password
+    if (form.password.length < 6) {
+      newErrors.password = "*Mật khẩu phải có ít nhất 6 ký tự";
+      hasError = true;
     }
 
     // Check repassword
@@ -96,36 +88,58 @@ export default function Register() {
       hasError = true;
     }
 
+    // Check phone
+    if (form.phone && !/^\d{10,11}$/.test(form.phone.replace(/\D/g, ""))) {
+      newErrors.phone = "*Số điện thoại không hợp lệ!";
+      hasError = true;
+    }
+
     setErrors(newErrors);
 
     if (!hasError) {
-      users.push({
-        username: form.username,
-        email: form.email,
-        password: form.password,
-      });
-      localStorage.setItem("users", JSON.stringify(users));
-      alert("Đăng ký thành công!");
-      navigate("/login");
+      setLoading(true);
+      try {
+        // Gọi API register
+        const response = await register({
+          fullName: form.fullName,
+          email: form.email,
+          password: form.password,
+          phone: form.phone,
+        });
+
+        alert("Đăng ký thành công!");
+        navigate("/login");
+      } catch (error) {
+        const errorMessage = error.message || "Đăng ký thất bại!";
+        if (errorMessage.includes("Email already registered")) {
+          newErrors.email = "*Email đã được sử dụng!";
+        } else {
+          setErrors({ ...newErrors, general: errorMessage });
+        }
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 relative">
+      <AuthLogo />
       <div className="bg-white p-8 rounded-2xl shadow-md w-96">
         <h2 className="text-2xl font-semibold text-center mb-6">Đăng ký</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Username */}
+          {/* Full Name */}
           <input
             type="text"
-            name="username"
-            placeholder="Tên đăng nhập"
-            value={form.username || ""}
+            name="fullName"
+            placeholder="Tên đầy đủ"
+            value={form.fullName || ""}
             onChange={handleChange}
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
           />
-          {errors.username && (
-            <p className="text-red-500 text-xs">{errors.username}</p>
+          {errors.fullName && (
+            <p className="text-red-500 text-xs">{errors.fullName}</p>
           )}
 
           {/* Email */}
@@ -136,9 +150,23 @@ export default function Register() {
             value={form.email || ""}
             onChange={handleChange}
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
           />
           {errors.email && (
             <p className="text-red-500 text-xs">{errors.email}</p>
+          )}
+
+          {/* Phone */}
+          <input
+            type="tel"
+            name="phone"
+            placeholder="Số điện thoại (tùy chọn)"
+            value={form.phone || ""}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {errors.phone && (
+            <p className="text-red-500 text-xs">{errors.phone}</p>
           )}
 
           {/* Password */}
@@ -150,6 +178,7 @@ export default function Register() {
               value={form.password || ""}
               onChange={handleChange}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+              required
             />
             <span
               className="absolute right-2.5 top-3 cursor-pointer text-gray-500"
@@ -171,6 +200,7 @@ export default function Register() {
               value={form.repassword || ""}
               onChange={handleChange}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+              required
             />
             <span
               className="absolute right-2.5 top-3 cursor-pointer text-gray-500"
@@ -183,11 +213,16 @@ export default function Register() {
             <p className="text-red-500 text-xs">{errors.repassword}</p>
           )}
 
+          {errors.general && (
+            <p className="text-red-500 text-xs">{errors.general}</p>
+          )}
+
           <button
             type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition duration-200 cursor-pointer"
+            disabled={loading}
+            className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white py-2 rounded-lg transition duration-200 cursor-pointer"
           >
-            Đăng ký
+            {loading ? "Đang đăng ký..." : "Đăng ký"}
           </button>
         </form>
 

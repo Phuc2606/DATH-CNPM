@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
-import { connectDB } from "./config/database.js";
+//import { connectDB } from "./config/database.js";
 
 // Import routes
 import authRoutes from "./routes/authRoutes.js";
@@ -13,7 +13,7 @@ dotenv.config();
 const app = express();
 
 // Connect to database
-connectDB();
+//connectDB();
 
 // Middleware
 app.use(helmet());

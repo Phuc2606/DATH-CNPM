@@ -1,20 +1,24 @@
-import React, { useState } from 'react';
-import Header from '../../components/Header/Header';
-import Footer from '../../components/Footer/Footer';
-import './Homepage.css';
-import { categories } from '../../data/categories';
-import { products } from '../../data/products';
-import * as PiIcons from 'react-icons/pi';
+import React, { useState, useEffect } from "react";
+import Header from "../../components/Header/Header";
+import Footer from "../../components/Footer/Footer";
+import "./Homepage.css";
+import { categories } from "../../data/categories";
+import { products } from "../../data/products";
+import * as PiIcons from "react-icons/pi";
 import { PiGridFourBold } from "react-icons/pi";
-import FilteredProducts from '../../components/FilteredProducts/FilteredProducts';
+import FilteredProducts from "../../components/FilteredProducts/FilteredProducts";
+import { useNavigate } from "react-router-dom";
+import { getCurrentUser, logout } from "../../services/authService";
 
 const Homepage = () => {
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [query, setQuery] = useState('');
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-  const [sort, setSort] = useState('default');
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [query, setQuery] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [sort, setSort] = useState("default");
   const [moreOpen, setMoreOpen] = useState(false);
+
+  // User state to show greeting and logout
 
   return (
     <div className="homepage-root">
@@ -28,7 +32,8 @@ const Homepage = () => {
               <div className="hp-hero__content">
                 <h1 className="hp-title">Công nghệ cho cuộc sống tốt hơn</h1>
                 <p className="hp-subtitle">
-                  Khuyến mãi đến 30% cho Laptop và phụ kiện. Giao hàng toàn quốc.
+                  Khuyến mãi đến 30% cho Laptop và phụ kiện. Giao hàng toàn
+                  quốc.
                 </p>
                 <div className="hp-hero__actions">
                   <button className="btn btn--primary">Mua ngay</button>
@@ -41,14 +46,16 @@ const Homepage = () => {
                   className="hp-hero-img"
                   src="/assets/images/asus.jpg"
                   alt="Hero visual"
-                  onError={(e) => { e.target.style.display = 'none'; }}
+                  onError={(e) => {
+                    e.target.style.display = "none";
+                  }}
                 />
                 <div className="hp-phone-mock" />
                 <div className="hp-badge">-30% OFF</div>
               </div>
             </div>
           </div>
-      </section>
+        </section>
 
         {/* === Categories === */}
         <section className="hp-categories">
@@ -61,40 +68,66 @@ const Homepage = () => {
                 const extra = categories.slice(maxVisible);
                 return (
                   <>
-                    <button key="all" className="cat-card" onClick={() => { setSelectedCategory('all'); setMoreOpen(false); }}>
-                      <div className="cat-card__icon"><PiGridFourBold /></div>
+                    <button
+                      key="all"
+                      className="cat-card"
+                      onClick={() => {
+                        setSelectedCategory("all");
+                        setMoreOpen(false);
+                      }}
+                    >
+                      <div className="cat-card__icon">
+                        <PiGridFourBold />
+                      </div>
                       <div className="cat-card__name">Tất cả</div>
                     </button>
 
-                    {visible.map(cat => {
+                    {visible.map((cat) => {
                       const Icon = PiIcons[cat.icon];
                       return (
-                        <button key={cat.id} className="cat-card" onClick={() => setSelectedCategory(cat.id)}>
-                          <div className="cat-card__icon">{Icon && <Icon />}</div>
+                        <button
+                          key={cat.id}
+                          className="cat-card"
+                          onClick={() => setSelectedCategory(cat.id)}
+                        >
+                          <div className="cat-card__icon">
+                            {Icon && <Icon />}
+                          </div>
                           <div className="cat-card__name">{cat.name}</div>
                         </button>
-                      )
+                      );
                     })}
 
                     {extra.length > 0 && (
                       <div className="more-dropdown">
-                        <button className="cat-card more-btn" onClick={() => setMoreOpen(!moreOpen)} aria-expanded={moreOpen}>
+                        <button
+                          className="cat-card more-btn"
+                          onClick={() => setMoreOpen(!moreOpen)}
+                          aria-expanded={moreOpen}
+                        >
                           <div className="cat-card__icon">⋯</div>
                           <div className="cat-card__name">Thêm</div>
                         </button>
                         {moreOpen && (
                           <div className="more-menu" role="menu">
-                            {extra.map(cat => {
+                            {extra.map((cat) => {
                               const Icon = PiIcons[cat.icon];
                               return (
                                 <button
                                   key={cat.id}
                                   className="cat-card"
-                                  onClick={() => { setSelectedCategory(cat.id); setMoreOpen(false); }}
+                                  onClick={() => {
+                                    setSelectedCategory(cat.id);
+                                    setMoreOpen(false);
+                                  }}
                                   role="menuitem"
                                 >
-                                  <div className="cat-card__icon">{Icon && <Icon />}</div>
-                                  <div className="cat-card__name">{cat.name}</div>
+                                  <div className="cat-card__icon">
+                                    {Icon && <Icon />}
+                                  </div>
+                                  <div className="cat-card__name">
+                                    {cat.name}
+                                  </div>
                                 </button>
                               );
                             })}
@@ -114,7 +147,9 @@ const Homepage = () => {
           <div className="container">
             <div className="section-head">
               <h2 className="section-title">Sản phẩm nổi bật</h2>
-              <a className="link-muted" href="#">Xem tất cả</a>
+              <a className="link-muted" href="#">
+                Xem tất cả
+              </a>
             </div>
 
             {/* <FilteredProducts /> */}
@@ -141,8 +176,19 @@ const Homepage = () => {
               <h3>Nhận thông tin khuyến mãi</h3>
               <p>Đăng ký email để nhận mã giảm giá và tin mới nhất.</p>
             </div>
-            <form className="newsletter-form" onSubmit={(e) => { e.preventDefault(); alert('Cảm ơn!'); }}>
-              <input aria-label="email" type="email" placeholder="Email của bạn" required />
+            <form
+              className="newsletter-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                alert("Cảm ơn!");
+              }}
+            >
+              <input
+                aria-label="email"
+                type="email"
+                placeholder="Email của bạn"
+                required
+              />
               <button className="btn btn--primary">Đăng ký</button>
             </form>
           </div>

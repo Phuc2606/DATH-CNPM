@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { HiEye, HiEyeOff } from "react-icons/hi";
 import { login } from "../../services/authService";
-
+import AuthLogo from "../../components/Auth/AuthLogo";
 const Login = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
@@ -25,7 +25,7 @@ const Login = () => {
 
       // Token và user info đã được lưu trong localStorage bởi authService
       alert("Đăng nhập thành công!");
-      navigate("/home");
+      navigate("/");
     } catch (err) {
       // Xử lý lỗi từ server
       const errorMessage = err.message || "Sai email hoặc mật khẩu!";
@@ -36,7 +36,8 @@ const Login = () => {
   };
 
   return (
-    <div>
+    <div className="relative">
+      <AuthLogo />
       <div className="flex justify-center items-center h-screen bg-gray-200">
         <div className="w-96 rounded-2xl bg-white p-8 shadow-md">
           <h2 className="text-2xl text-center font-semibold mb-4">Đăng Nhập</h2>
@@ -45,7 +46,7 @@ const Login = () => {
               type="email"
               name="email"
               id="email"
-              placeholder="Email"
+              placeholder="Tên đăng nhập"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               onChange={handleChange}
               required
