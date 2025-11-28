@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { HiEye, HiEyeOff } from "react-icons/hi";
 import { login } from "../../services/authService";
 import AuthLogo from "../../components/Auth/AuthLogo";
+import { toast } from "react-toastify";
 const Login = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
@@ -22,10 +23,14 @@ const Login = () => {
     try {
       // Gọi API login từ backend
       const response = await login(form.email, form.password);
-
+      const user = response.user;
       // Token và user info đã được lưu trong localStorage bởi authService
-      alert("Đăng nhập thành công!");
-      navigate("/");
+      toast.success("Đăng nhập thành công!");
+      if (user.role === "Admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       // Xử lý lỗi từ server
       const errorMessage = err.message || "Sai email hoặc mật khẩu!";

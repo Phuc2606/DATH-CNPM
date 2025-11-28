@@ -1,4 +1,5 @@
 import apiClient from "./api";
+import { toast } from "react-toastify";
 
 // Đăng ký tài khoản
 export const register = async (userData) => {
@@ -32,6 +33,7 @@ export const login = async (email, password) => {
 export const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
+  toast.success("Đăng xuất thành công!");
   return apiClient.post("/auth/logout");
 };
 

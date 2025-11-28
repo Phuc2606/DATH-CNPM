@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
-//import { connectDB } from "./config/database.js";
+import { connectDB } from "./config/database.js";
 
 // Import routes
 import authRoutes from "./routes/authRoutes.js";
@@ -41,8 +41,21 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+const startServer = async () => {
+  try {
+    // 1. Kết nối Database trước
+    await connectDB();
+
+    // 2. Nếu OK thì mới bật Server
+    app.listen(PORT, () => {
+      console.log(`🚀 Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("❌ Không thể khởi động server:", error);
+    process.exit(1); // Tắt chương trình nếu lỗi
+  }
+};
+
+startServer();
 
 export default app;

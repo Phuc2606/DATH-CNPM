@@ -1,6 +1,16 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
 @import "tailwindcss";
 @import "./styles/theme.css";
+
+.collapse {
+  visibility: visible !important; /* Gỡ bỏ visibility: collapse của Tailwind */
+}
+
+/* Khi không có class 'show' (tức là đang đóng) thì mới ẩn đi */
+.collapse:not(.show) {
+  display: none;
+}
+
 * {
   box-sizing: border-box;
   font-family: "Inter", sans-serif;

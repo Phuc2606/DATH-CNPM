@@ -5,6 +5,8 @@ import { AiOutlineShoppingCart } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import useCart from "../../context/useCart";
 import { getCurrentUser, logout } from "../../services/authService";
+import { Link } from "react-router-dom";
+import { DiAptana } from "react-icons/di";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -28,24 +30,35 @@ const Header = () => {
   return (
     <header className="site-header">
       <div className="container header-inner">
-        <a className="brand" href="/">
+        <Link className="brand" to="/">
           TechShop
-        </a>
+        </Link>
         <Navbar />
         <div className="header-actions">
           <div style={{ position: "relative" }}>
-            <button
-              className="cart-btn"
-              aria-label="Giỏ hàng"
-              onClick={() => navigate("/checkout")}
-            >
-              <AiOutlineShoppingCart />
-              {itemCount > 0 && (
-                <span className={`cart-badge ${lastAdded ? "pulse" : ""}`}>
-                  {itemCount}
-                </span>
-              )}
-            </button>
+            {user?.role === "Admin" ? (
+              <button
+                className="cart-btn" // Tái sử dụng class của giỏ hàng cho đẹp
+                onClick={() => navigate("/admin")}
+                title="Vào trang quản trị" // Hover vào sẽ hiện chữ này
+              >
+                <DiAptana size={24} />
+              </button>
+            ) : (
+              // Nếu là Customer (hoặc chưa login): Hiện Giỏ hàng
+              <button
+                className="cart-btn"
+                aria-label="Giỏ hàng"
+                onClick={() => navigate("/checkout")}
+              >
+                <AiOutlineShoppingCart />
+                {itemCount > 0 && (
+                  <span className={`cart-badge ${lastAdded ? "pulse" : ""}`}>
+                    {itemCount}
+                  </span>
+                )}
+              </button>
+            )}
             {showToast && lastAdded && (
               <div
                 className={`add-toast ${showToast ? "show" : ""}`}
@@ -78,9 +91,9 @@ const Header = () => {
             <div className="flex gap-4 items-center ">
               <span
                 className="text-white text-sm max-w-[80px] truncate inline-block align-middle"
-                title={user.fullName} /* Hover vào sẽ hiện tên đầy đủ */
+                title={user.name} /* Hover vào sẽ hiện tên đầy đủ */
               >
-                Hi {user.fullName}
+                Hi {user.name}
               </span>
               <a
                 className="!text-(--color-primary) cursor-pointer hover:underline"

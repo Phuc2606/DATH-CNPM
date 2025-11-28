@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { HiEye, HiEyeOff } from "react-icons/hi";
 import { register } from "../../services/authService";
 import AuthLogo from "../../components/Auth/AuthLogo";
+import { toast } from "react-toastify";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -101,13 +102,13 @@ export default function Register() {
       try {
         // Gọi API register
         const response = await register({
-          fullName: form.fullName,
+          name: form.fullName,
           email: form.email,
           password: form.password,
           phone: form.phone,
         });
 
-        alert("Đăng ký thành công!");
+        toast.success("Đăng ký thành công!");
         navigate("/login");
       } catch (error) {
         const errorMessage = error.message || "Đăng ký thất bại!";
