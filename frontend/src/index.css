@@ -1,28 +1,42 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
-*{
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-    font-family: Outfit;
-    scroll-behavior: smooth;
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
+@import "tailwindcss";
+@import "./styles/theme.css";
+
+.collapse {
+  visibility: visible !important; /* Gỡ bỏ visibility: collapse của Tailwind */
 }
-body{
-    min-height: 100vh;
+
+/* Khi không có class 'show' (tức là đang đóng) thì mới ẩn đi */
+.collapse:not(.show) {
+  display: none;
 }
-a{
-    text-decoration: none;
-    color: inherit;
+
+* {
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-.app{
-    width: 80%;
-    margin: auto;
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-weight: 500;
+}
+a {
+  text-decoration: none;
+  color: inherit;
+}
+.app {
+  width: 80%;
+  margin: auto;
 }
 
 @keyframes fadeIn {
-    0%{
-        opacity: 0;
-    }
-    100%{
-        opacity: 1;
-    }
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
