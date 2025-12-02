@@ -21,7 +21,8 @@
     "helmet": "^7.2.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.0",
-    "mssql": "^12.1.1"
+    "mssql": "^12.1.1",
+    "multer": "^2.0.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"

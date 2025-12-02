@@ -3,27 +3,38 @@ import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
 import { connectDB } from "./config/database.js";
+import path from "path";
+import { fileURLToPath } from "url";
 
 // Import routes
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import inventoryRoutes from "./routes/inventoryRoutes.js";
 
 dotenv.config();
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const app = express();
 
 // Connect to database
 //connectDB();
 
 // Middleware
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }, // cho phép mọi domain
+  })
+);
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/admin", inventoryRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {

@@ -66,6 +66,12 @@ class Product {
     );
     return res.recordset[0] || null;
   }
+
+  static async deleteById(id) {
+    const request = new sql.Request();
+    request.input("id", sql.Int, id);
+    await request.query("DELETE FROM Product WHERE ProductID = @id");
+  }
 }
 
 export default Product;

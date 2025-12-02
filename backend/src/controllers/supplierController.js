@@ -1,36 +1,61 @@
-import SupplierModel from "../models/SupplierModel.js";
+import Supplier from "../models/Supplier.js";
+import { sql } from "../config/database.js";
 
-export const listSuppliers = async (req, res) => {
+export const getAllSuppliers = async (req, res) => {
   try {
-    const list = await SupplierModel.findAll();
+    const list = await Supplier.findAll();
     res.json(list);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: "Lỗi lấy NCC", err });
   }
 };
 
 export const createSupplier = async (req, res) => {
   try {
-    const s = new SupplierModel(req.body);
+    const s = new Supplier(req.body);
     const saved = await s.save();
-    res.status(201).json(saved);
+    res.status(201).json({ message: "Thêm NCC thành công", data: saved });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+export const updateSupplier = async (req, res) => {
+  try {
+    const supplier = new Supplier(req.body);
+    supplier.SupplierID = req.params.id; // Gán ID từ URL
+    await supplier.save();
+    res.json({ message: "Cập nhật NCC thành công" });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi cập nhật NCC", error });
+  }
+};
+
+export const deleteSupplier = async (req, res) => {
+  try {
+    await Supplier.deleteById(req.params.id);
+    res.json({ message: "Xóa NCC thành công" });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi xóa NCC", error: error.message });
   }
 };
 
 export const linkProduct = async (req, res) => {
   try {
-    const { ProductID, SupplierID, SupplyPrice } = req.body;
+    const { ProductID, SupplierID } = req.body;
     const linked = await SupplierModel.linkProduct({
       ProductID,
       SupplierID,
-      SupplyPrice,
     });
-    res.status(201).json(linked);
+    res.status(201).json({ message: "Đã liên kết sản phẩm", data: linked });
   } catch (err) {
+    if (err.number === 2627) {
+      return res
+        .status(400)
+        .json({ message: "Sản phẩm này đã được liên kết với NCC rồi" });
+    }
     res.status(500).json({ error: err.message });
   }
 };
 
-export default { listSuppliers, createSupplier, linkProduct };
+export default { getAllSuppliers, createSupplier, updateSupplier, linkProduct };

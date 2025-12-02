@@ -46,6 +46,15 @@ class Category {
     );
     return res.recordset[0] || null;
   }
+
+  static async deleteById(id) {
+    const request = new sql.Request();
+    request.input("id", sql.VarChar, id);
+
+    // Xóa
+    await request.query("DELETE FROM Category WHERE CategoryID = @id");
+    return true;
+  }
 }
 
 export default Category;
