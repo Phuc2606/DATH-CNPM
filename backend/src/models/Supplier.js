@@ -45,6 +45,26 @@ class Supplier {
     );
     return res.recordset[0] || null;
   }
+
+  static async linkProduct({ ProductID, SupplierID }) {
+    const request = new sql.Request();
+    request.input("pid", sql.Int, ProductID);
+    request.input("sid", sql.Int, SupplierID);
+
+    await request.query(
+      "INSERT INTO ProductSupplier (ProductID, SupplierID) VALUES (@pid, @sid)"
+    );
+    return { ProductID, SupplierID };
+  }
+
+  static async deleteByID(id) {
+    const request = new sql.Request();
+    request.input("id", sql.VarChar, id);
+
+    // Xóa
+    await request.query("DELETE FROM Supplier WHERE SupplierID = @id");
+    return true;
+  }
 }
 
 export default Supplier;

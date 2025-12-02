@@ -165,12 +165,12 @@ const AdminLayout = () => {
             style={{ display: isMobileMenuOpen ? "block" : undefined }}
           >
             <ul className="navbar-nav ps-2 pt-3">
-              {menuItems.map((item) => (
+              {menuItems.map((item, index) => (
                 <li
                   className={`nav-item ${
                     location.pathname === item.path ? "active" : ""
                   }`}
-                  key={item.path}
+                  key={item.path || index}
                 >
                   <Link
                     className="nav-link"
