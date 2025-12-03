@@ -36,9 +36,8 @@ export const createProduct = async (req, res) => {
     // Xử lý ảnh: Nếu có file upload thì lấy đường dẫn
     let imageUrl = req.body.ImageURL || "";
     if (req.file) {
-      imageUrl = `/uploads/${req.file.filename}`;
+      imageUrl = `/uploads/${req.uploadFolder}/${req.uploadFileName}`;
     }
-
     const productData = {
       ...req.body,
       ImageURL: imageUrl,
@@ -65,7 +64,7 @@ export const updateProduct = async (req, res) => {
 
     let imageUrl = existing.ImageURL;
     if (req.file) {
-      imageUrl = `/uploads/${req.file.filename}`;
+      imageUrl = `/uploads/${req.uploadFolder}/${req.uploadFileName}`;
     }
 
     const p = new ProductModel({
@@ -112,8 +111,14 @@ export const deleteProduct = async (req, res) => {
       });
     }
 
-    // Xóa Store trước
-    await request.query("DELETE FROM Store WHERE ProductID = @id");
+    const checkStore = await request.query(
+      "SELECT TOP 1 ProductID FROM Store WHERE ProductID = @id"
+    );
+    if (checkStore.recordset.length > 0) {
+      return res.status(400).json({
+        message: "Không thể xóa: Sản phẩm vẫn còn tồn kho ở chi nhánh!",
+      });
+    }
 
     await ProductModel.deleteById(id);
     res.json({ message: "Đã xóa sản phẩm vĩnh viễn" });

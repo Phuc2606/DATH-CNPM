@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import ProductService from "../../services/productService";
+import productService from "../../services/productService";
 import categoryService from "../../services/categoryService";
 import {
   IconPlus,
@@ -39,7 +39,7 @@ const ProductManager = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const data = await ProductService.getAllProducts();
+      const data = await productService.getAllProducts();
       setProducts(data);
     } catch (err) {
       console.error("Lỗi:", err);
@@ -108,12 +108,14 @@ const ProductManager = () => {
     e.preventDefault();
     try {
       const data = new FormData();
+      //      const Category = await categoryService.getCategoryById(formData.Category);
       data.append("Name", formData.Name);
       data.append("Brand", formData.Brand);
       data.append("Category", formData.Category);
       data.append("Price", formData.Price);
       data.append("Stock", formData.Stock);
       data.append("Description", formData.Description);
+      //      data.append("CategoryName", Category.Name);
       if (formData.image) {
         data.append("image", formData.image);
       }
@@ -121,10 +123,10 @@ const ProductManager = () => {
       const config = { headers: { "Content-Type": "multipart/form-data" } };
 
       if (isEditing) {
-        await ProductService.updateProduct(formData.ProductID, data);
+        await productService.updateProduct(formData.ProductID, data);
         alert("Cập nhật thành công!");
       } else {
-        await ProductService.createProduct(data);
+        await productService.createProduct(data);
         alert("Thêm mới thành công!");
       }
 
@@ -138,7 +140,7 @@ const ProductManager = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa?")) {
       try {
-        await ProductService.deleteProduct(id);
+        await productService.deleteProduct(id);
         alert("Đã xóa!");
         fetchProducts();
       } catch (err) {
