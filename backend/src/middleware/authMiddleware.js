@@ -9,6 +9,7 @@ export const verifyToken = (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("Decoded token:", decoded);
     req.user = decoded;
     next();
   } catch (error) {
@@ -17,7 +18,7 @@ export const verifyToken = (req, res, next) => {
 };
 
 export const isAdmin = (req, res, next) => {
-  if (req.user.role !== "admin") {
+  if (req.user.role !== "Admin") {
     return res.status(403).json({ message: "Access denied" });
   }
   next();

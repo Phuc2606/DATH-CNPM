@@ -57,11 +57,38 @@ class Supplier {
     return { ProductID, SupplierID };
   }
 
-  static async deleteByID(id) {
+  static async unlinkProduct({ ProductID, SupplierID }) {
     const request = new sql.Request();
-    request.input("id", sql.VarChar, id);
+    request.input("pid", sql.Int, ProductID);
+    request.input("sid", sql.Int, SupplierID);
 
-    // Xóa
+    await request.query(
+      "DELETE FROM ProductSupplier WHERE ProductID = @pid AND SupplierID = @sid"
+    );
+    return true;
+  }
+
+  static async getLinkedProducts(supplierId) {
+    const request = new sql.Request();
+    request.input("sid", sql.Int, supplierId);
+    // Join bảng Product để lấy tên, giá...
+    const res = await request.query(`
+        SELECT p.ProductID, p.Name, p.Brand, p.Price, p.ImageURL
+        FROM Product p
+        JOIN ProductSupplier ps ON p.ProductID = ps.ProductID
+        WHERE ps.SupplierID = @sid
+    `);
+    return res.recordset;
+  }
+
+  static async deleteById(id) {
+    const request = new sql.Request();
+    request.input("id", sql.Int, id);
+
+    // 1. Xóa liên kết sản phẩm trước (Bảng trung gian)
+    await request.query("DELETE FROM ProductSupplier WHERE SupplierID = @id");
+
+    // 2. Xóa nhà cung cấp
     await request.query("DELETE FROM Supplier WHERE SupplierID = @id");
     return true;
   }
