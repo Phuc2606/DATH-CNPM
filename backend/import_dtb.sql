@@ -24,11 +24,11 @@ GO
 -- 2. Insert Sản phẩm (Đã fix giá và category)
 INSERT INTO Product (ProductID, Name, Brand, Category, Price, Stock, Description, ImageURL) VALUES
 -- Laptop (cat-1)
-(1, N'Lenovo Legion 5 15"', 'Lenovo', 'cat-1', 22990000, 50, N'Laptop gaming hiệu năng cao.', '/assets/images/laptop_lenovo_legion.jpg'),
-(2, N'Asus ROG Strix G15', 'Asus', 'cat-1', 34500000, 40, N'Chiến thần gaming.', '/assets/images/laptop_lenovo_legion.jpg'),
-(3, N'Dell XPS 13', 'Dell', 'cat-1', 29900000, 30, N'Ultrabook mỏng nhẹ.', '/assets/images/laptop_dell.jpg'),
-(4, N'Apple MacBook Air M1', 'Apple', 'cat-1', 26500000, 45, N'MacBook Air chip M1.', '/assets/images/laptop_macbook.jpg'),
-(5, N'HP Pavilion 14', 'HP', 'cat-1', 15990000, 60, N'Laptop văn phòng bền bỉ.', '/assets/images/laptop_dell.jpg'),
+(1, N'Lenovo Legion 5 15"', 'Lenovo', 'cat-1', 22990000, 50, N'Laptop gaming hiệu năng cao.', '/uploads/laptop_lenovo_legion.jpg'),
+(2, N'Asus ROG Strix G15', 'Asus', 'cat-1', 34500000, 40, N'Chiến thần gaming.', '/uploads/laptop_lenovo_legion.jpg'),
+(3, N'Dell XPS 13', 'Dell', 'cat-1', 29900000, 30, N'Ultrabook mỏng nhẹ.', '/uploads/laptop_dell.jpg'),
+(4, N'Apple MacBook Air M1', 'Apple', 'cat-1', 26500000, 45, N'MacBook Air chip M1.', '/uploads/laptop_macbook.jpg'),
+(5, N'HP Pavilion 14', 'HP', 'cat-1', 15990000, 60, N'Laptop văn phòng bền bỉ.', '/uploads/laptop_dell.jpg'),
 
 -- Smartwatch -> Thiết bị đeo (cat-2)
 (6, N'Apple Watch Series 9', 'Apple', 'cat-2', 9990000, 50, N'Smartwatch Apple mới nhất.', '/assets/images/apple_watch.jpg'),

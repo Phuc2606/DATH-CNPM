@@ -97,7 +97,7 @@ const AdminLayout = () => {
     {
       label: "Kho & Chi nhánh", // Map với bảng Branch & Store
       icon: <IconBuildingWarehouse size={20} />,
-      path: "/admin/branches",
+      path: "/admin/inventory",
     },
 
     // --- NHÓM 2: BÁN HÀNG (Sales) ---

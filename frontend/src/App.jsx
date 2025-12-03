@@ -16,6 +16,10 @@ import CommentsManager from "./pages/admin/CommentsManager";
 import ContactsManager from "./pages/admin/ContactsManager";
 import FAQsManager from "./pages/admin/FAQsManager";
 import ProtectedRoute from "./components/Auth/ProtectedRoute";
+import CategoriesManager from "./pages/admin/CategoriesManager";
+import InventoryManager from "./pages/admin/InventoryManager";
+import SupplierManager from "./pages/admin/SupplierManager";
+
 import { ToastContainer } from "react-toastify";
 const App = () => {
   return (
@@ -41,6 +45,9 @@ const App = () => {
             <Route path="comments" element={<CommentsManager />} />
             <Route path="contacts" element={<ContactsManager />} />
             <Route path="faqs" element={<FAQsManager />} />
+            <Route path="categories" element={<CategoriesManager />} />
+            <Route path="inventory" element={<InventoryManager />} />
+            <Route path="suppliers" element={<SupplierManager />} />
           </Route>
         </Route>
       </Routes>
