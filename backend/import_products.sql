@@ -1,3 +1,6 @@
+USE OnlineShopDB;
+GO
+
 INSERT INTO Branch (Name, Address, Expense, AvailableCapacity) VALUES
 ('Branch HCM 1', 'District 1, HCM', 15000, 200),
 ('Branch HCM 2', 'District 3, HCM', 10000, 180),
@@ -14,6 +17,8 @@ INSERT INTO Category (CategoryID, Name, Icon) VALUES
 ('cat-6', N'Tablet', 'PiDeviceTabletFill'),
 ('cat-7', N'Camera', 'PiCameraFill'),
 ('cat-8', N'Gaming', 'PiGameControllerFill');
+
+SET IDENTITY_INSERT Product ON;
 
 INSERT INTO Product (ProductID, Name, Brand, Category, Price, Stock, Description, ImageURL) VALUES
 -- Laptop (cat-1) - 10 sản phẩm
@@ -112,6 +117,7 @@ INSERT INTO Product (ProductID, Name, Brand, Category, Price, Stock, Description
 (79, N'Ayn Odin 2 Pro', 'Ayn', 'cat-8', 9990000, 35, N'Máy chơi game Android mạnh', '/uploads/Gaming Console/Ayn-Odin-2-Pro.jpg'),
 (80, N'Logitech G Cloud', 'Logitech', 'cat-8', 8990000, 30, N'Chuyên cloud gaming', '/uploads/Gaming Console/Logitech-G-Cloud.jpg');
 
+SET IDENTITY_INSERT Product OFF;
 
 
 

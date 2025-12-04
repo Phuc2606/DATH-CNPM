@@ -4,8 +4,8 @@ import apiClient from "./api"; // Import axios instance đã cấu hình
 const ENDPOINT = "/categories";
 
 // 1. Lấy danh sách (Dùng cho cả User Navbar & Admin Table)
-export const getAllCategories = async () => {
-  const response = await apiClient.get(ENDPOINT);
+export const getAllCategories = async (params) => {
+  const response = await apiClient.get(ENDPOINT, { params });
   return response.data;
 };
 

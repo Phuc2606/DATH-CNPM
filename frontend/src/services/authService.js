@@ -22,6 +22,7 @@ export const login = async (email, password) => {
     if (response.data.token) {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
+      window.dispatchEvent(new Event("auth-change"));
     }
     return response.data;
   } catch (error) {

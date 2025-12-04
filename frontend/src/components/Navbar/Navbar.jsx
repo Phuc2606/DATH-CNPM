@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import "./Navbar.css";
 import { AiOutlineSearch } from "react-icons/ai";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -9,28 +10,28 @@ const Navbar = () => {
   return (
     <div className="navbar">
       <div className={`nav-links ${open ? "open" : ""}`}>
-        <a href="/" className="nav-item">
+        <Link to="/" className="nav-item">
           Trang chủ
-        </a>
+        </Link>
 
-        <a href="/products" className="nav-item">
+        <Link to="/products" className="nav-item">
           Sản phẩm
-        </a>
+        </Link>
 
-        <a href="/branch" className="nav-item">
+        <Link to="/stores" className="nav-item">
           Cửa hàng
-        </a>
+        </Link>
 
-        <a href="/profile" className="nav-item">
+        <Link to="/profile" className="nav-item">
           Tài khoản
-        </a>
+        </Link>
       </div>
 
       <div className="nav-actions">
         <div className="nav-search">
           <AiOutlineSearch
             className="nav-search__icon"
-            onClick={() => searchRef.current && searchRef.current.focus()}
+            onClick={() => searchRef.current?.focus()}
             aria-hidden
           />
           <input
@@ -39,6 +40,7 @@ const Navbar = () => {
             aria-label="Tìm kiếm sản phẩm"
           />
         </div>
+
         <button
           className="hamburger"
           onClick={() => setOpen(!open)}
@@ -50,4 +52,5 @@ const Navbar = () => {
     </div>
   );
 };
+
 export default Navbar;

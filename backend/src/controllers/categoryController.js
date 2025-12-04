@@ -5,6 +5,20 @@ import { sql } from "../config/database.js";
 
 export const getAllCategories = async (req, res) => {
   try {
+    // Nếu có tham số page thì dùng phân trang, không thì lấy hết (cho dropdown)
+    if (req.query.page) {
+      const { page, limit, search } = req.query;
+      const pageNumber = parseInt(page) || 1;
+      const limitNumber = parseInt(limit) || 10;
+
+      const result = await Category.findWithPagination({
+        page: pageNumber,
+        limit: limitNumber,
+        search: search || null,
+      });
+      return res.json(result);
+    }
+
     const list = await Category.findAll();
     res.json(list);
   } catch (err) {

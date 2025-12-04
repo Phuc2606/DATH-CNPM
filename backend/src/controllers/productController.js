@@ -13,6 +13,26 @@ export const getAllProducts = async (req, res) => {
   }
 };
 
+// * Dùng cho Admin
+export const getAdminProducts = async (req, res) => {
+  try {
+    const { page, limit, search } = req.query;
+
+    const pageNumber = parseInt(page) || 1;
+    const limitNumber = parseInt(limit) || 10;
+
+    const result = await ProductModel.findWithPagination({
+      page: pageNumber || 1,
+      limit: limitNumber || 10,
+      search: search || null,
+    });
+
+    res.json(result); // Trả về object { data: [], pagination: {} }
+  } catch (err) {
+    res.status(500).json({ message: "Lỗi server", error: err.message });
+  }
+};
+
 // 2. Lấy chi tiết 1 sản phẩm
 export const getProductById = async (req, res) => {
   try {
@@ -129,6 +149,7 @@ export const deleteProduct = async (req, res) => {
 
 export default {
   getAllProducts,
+  getAdminProducts,
   getProductById,
   createProduct,
   updateProduct,
