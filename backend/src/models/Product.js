@@ -58,6 +58,41 @@ class Product {
     return res.recordset;
   }
 
+  static async findWithPagination({ page, limit, search }) {
+    const request = new sql.Request();
+    const offset = (page - 1) * limit;
+
+    let whereClause = "";
+    if (search) {
+      whereClause = "WHERE Name LIKE @search";
+      request.input("search", sql.NVarChar, `%${search}%`);
+    }
+
+    const queryData = `
+        SELECT * FROM Product 
+        ${whereClause}
+        ORDER BY ProductID DESC
+        OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
+    `;
+    request.input("offset", sql.Int, offset);
+    request.input("limit", sql.Int, limit);
+
+    const queryCount = `SELECT COUNT(*) as total FROM Product ${whereClause}`;
+
+    const dataRes = await request.query(queryData);
+    const countRes = await request.query(queryCount);
+
+    return {
+      data: dataRes.recordset,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total: countRes.recordset[0].total,
+        totalPages: Math.ceil(countRes.recordset[0].total / limit),
+      },
+    };
+  }
+
   static async findById(id) {
     const request = new sql.Request();
     request.input("id", sql.Int, id);

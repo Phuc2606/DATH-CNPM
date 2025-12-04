@@ -8,6 +8,14 @@ const router = express.Router();
 
 // --- PUBLIC (User xem được) ---
 router.get("/", productController.getAllProducts);
+
+router.get(
+  "/admin/list",
+  verifyToken,
+  isAdmin,
+  productController.getAdminProducts
+);
+
 router.get("/:id", productController.getProductById);
 
 // --- ADMIN ONLY (Cần login & quyền Admin) ---

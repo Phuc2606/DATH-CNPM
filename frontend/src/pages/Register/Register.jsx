@@ -125,7 +125,6 @@ export default function Register() {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 relative">
-      <AuthLogo />
       <div className="bg-white p-8 rounded-2xl shadow-md w-96">
         <h2 className="text-2xl font-semibold text-center mb-6">Đăng ký</h2>
         <form onSubmit={handleSubmit} className="space-y-4">

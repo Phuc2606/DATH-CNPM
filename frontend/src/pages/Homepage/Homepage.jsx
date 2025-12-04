@@ -22,8 +22,6 @@ const Homepage = () => {
 
   return (
     <div className="homepage-root">
-      <Header />
-
       <main className="hp-main">
         {/* === Hero Section === */}
         <section className="hp-hero">
@@ -194,8 +192,6 @@ const Homepage = () => {
           </div>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 };

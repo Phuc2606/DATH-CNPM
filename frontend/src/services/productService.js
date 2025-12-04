@@ -14,6 +14,13 @@ export const getProductById = async (id) => {
 };
 
 // --- ADMIN ---
+// Lấy prod, có phân trang
+export const getAdminProducts = async (params) => {
+  // params: { page: 1, limit: 5, search: '...' }
+  const response = await apiClient.get(`${ENDPOINT}/admin/list`, { params });
+  return response.data;
+};
+
 // Tạo sản phẩm (Có upload ảnh)
 export const createProduct = async (formData) => {
   const response = await apiClient.post(ENDPOINT, formData, {
@@ -37,6 +44,7 @@ export const deleteProduct = async (id) => {
 
 export default {
   getAllProducts,
+  getAdminProducts,
   getProductById,
   createProduct,
   updateProduct,

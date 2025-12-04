@@ -14,6 +14,10 @@ const CategoriesManager = () => {
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
+  const [pagination, setPagination] = useState({ page: 1, totalPages: 1 });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+
   const [formData, setFormData] = useState({
     CategoryID: "",
     Name: "",
@@ -21,22 +25,33 @@ const CategoriesManager = () => {
   });
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    fetchCategories(currentPage);
+  }, [currentPage]);
 
-  // --- SỬA ĐOẠN FETCH ---
-  const fetchCategories = async () => {
+  const fetchCategories = async (page = 1) => {
     try {
       setLoading(true);
-      // Gọi qua Service
-      const data = await CategoryService.getAllCategories();
-      setCategories(data);
+      // Gọi API có phân trang
+      const res = await CategoryService.getAllCategories({
+        page: page,
+        limit: 5,
+        search: searchTerm,
+      });
+
+      // Backend trả về { data, pagination }
+      setCategories(res.data);
+      setPagination(res.pagination);
     } catch (err) {
-      console.error("Lỗi lấy danh mục:", err);
-      // alert("Lỗi tải dữ liệu"); // Có thể bỏ alert nếu muốn
+      console.error("Lỗi:", err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setCurrentPage(1);
+    fetchCategories(1);
   };
 
   const handleChange = (e) => {
@@ -63,7 +78,6 @@ const CategoriesManager = () => {
     setShowModal(true);
   };
 
-  // --- SỬA ĐOẠN SUBMIT ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -77,23 +91,21 @@ const CategoriesManager = () => {
         alert("Thêm mới thành công!");
       }
       setShowModal(false);
-      fetchCategories();
+      fetchCategories(1);
     } catch (err) {
       console.error(err);
-      // Lấy message lỗi từ response của service (apiClient đã xử lý một phần)
       const msg = err.response?.data?.message || err.message || "Có lỗi xảy ra";
       alert("Lỗi: " + msg);
     }
   };
 
-  // --- SỬA ĐOẠN DELETE ---
   const handleDelete = async (id) => {
     if (window.confirm(`Bạn có chắc muốn xóa danh mục [${id}] không?`)) {
       try {
         // Gọi Service Delete
         await CategoryService.deleteCategory(id);
         alert("Đã xóa!");
-        fetchCategories();
+        fetchCategories(1);
       } catch (err) {
         const msg =
           err.response?.data?.message || err.message || "Không thể xóa";
@@ -102,19 +114,32 @@ const CategoriesManager = () => {
     }
   };
 
-  // ... (Phần render JSX bên dưới giữ nguyên y hệt code cũ) ...
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="fw-bold text-dark d-flex align-items-center gap-2">
           <IconCategory size={28} /> Quản lý Danh mục
         </h2>
-        <button
-          className="btn btn-primary d-flex align-items-center gap-2"
-          onClick={() => openModal()}
-        >
-          <IconPlus size={20} /> Thêm danh mục
-        </button>
+        <div className="d-flex gap-2">
+          <form onSubmit={handleSearch} className="d-flex">
+            <input
+              type="text"
+              className="form-control me-2"
+              placeholder="Tìm tên..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <button className="btn btn-outline-secondary" type="submit">
+              Tìm
+            </button>
+          </form>
+          <button
+            className="btn btn-primary d-flex align-items-center gap-2"
+            onClick={() => openModal()}
+          >
+            <IconPlus size={20} /> Thêm
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -178,6 +203,43 @@ const CategoriesManager = () => {
                 )}
               </tbody>
             </table>
+            {pagination.totalPages > 1 && (
+              <div className="d-flex justify-content-center mt-3 mb-2">
+                <nav>
+                  <ul className="pagination">
+                    <li
+                      className={`page-item ${
+                        currentPage === 1 ? "disabled" : ""
+                      }`}
+                    >
+                      <button
+                        className="page-link"
+                        onClick={() => setCurrentPage((prev) => prev - 1)}
+                      >
+                        Trước
+                      </button>
+                    </li>
+                    <li className="page-item">
+                      <span className="page-link text-primary">
+                        Trang {currentPage} / {pagination.totalPages}
+                      </span>
+                    </li>
+                    <li
+                      className={`page-item ${
+                        currentPage === pagination.totalPages ? "disabled" : ""
+                      }`}
+                    >
+                      <button
+                        className="page-link"
+                        onClick={() => setCurrentPage((prev) => prev + 1)}
+                      >
+                        Sau
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            )}
           </div>
         </div>
       )}
