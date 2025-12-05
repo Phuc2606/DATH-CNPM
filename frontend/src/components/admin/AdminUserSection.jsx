@@ -2,10 +2,16 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { IconLogout, IconLogin } from "@tabler/icons-react";
+import { getCurrentUser, logout } from "../../services/authService";
 
 const AdminUserSection = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const u = getCurrentUser();
+    setUser(u);
+  }, []);
 
   // 1. Lấy thông tin User từ LocalStorage khi mới vào
   useEffect(() => {
@@ -25,18 +31,10 @@ const AdminUserSection = () => {
   const handleLogout = async () => {
     try {
       // Gọi API Logout (Nhớ sửa đúng đường dẫn backend của bạn)
-      const response = await fetch("/api/logout", {
-        method: "POST",
-        // credentials: "include", // Bật nếu dùng Session PHP
-      });
+      await logout();
 
-      // Dù API thành công hay thất bại thì Client cũng phải xóa data để thoát
       setUser(null);
-      localStorage.removeItem("loggedInUser");
-      localStorage.removeItem("token");
-
-      toast.success("Đã đăng xuất Admin!");
-      navigate("/login"); // Đá về trang login
+      navigate("/login");
     } catch (error) {
       console.error("Lỗi logout:", error);
       toast.error("Lỗi kết nối!");
