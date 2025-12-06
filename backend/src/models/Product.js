@@ -138,6 +138,76 @@ class Product {
     const affected = result.recordset?.[0]?.affected ?? result.rowsAffected[0];
     return affected > 0; // true = giảm thành công, false = hết hàng
   }
+  static async Filter({ search, brand, priceRange, page = 1, limit = 12 }) {
+    const request = new sql.Request();
+    const offset = (page - 1) * limit;
+
+    let where = ["Stock > 0"];
+
+    if (search) {
+      const keyword = `%${search.trim()}%`;
+      where.push(`(
+    Name COLLATE SQL_Latin1_General_CP1_CI_AI LIKE @search 
+    OR Description COLLATE SQL_Latin1_General_CP1_CI_AI LIKE @search
+  )`);
+      request.input("search", sql.NVarChar, `%${search}%`);
+    }
+    if (brand) {
+      where.push(`Brand = @brand`);
+      request.input("brand", sql.NVarChar, brand);
+    }
+    if (priceRange) {
+      const parts = priceRange.split("-");
+
+      if (parts.length === 1) {
+        const exact = parseFloat(parts[0]);
+        if (!isNaN(exact) && exact > 0) {
+          where.push(`Price = @priceExact`);
+          request.input("priceExact", sql.Decimal(18, 2), exact);
+        }
+      } else {
+        const minStr = parts[0].trim();
+        const maxStr = parts[1]?.trim();
+
+        if (minStr && maxStr) {
+          // có cả min và max
+          where.push(`Price BETWEEN @priceMin AND @priceMax`);
+          request.input("priceMin", sql.Decimal(18, 2), parseFloat(minStr));
+          request.input("priceMax", sql.Decimal(18, 2), parseFloat(maxStr));
+        } else if (minStr && !maxStr) {
+          // chỉ có min → từ X trở lên
+          where.push(`Price >= @priceMin`);
+          request.input("priceMin", sql.Decimal(18, 2), parseFloat(minStr));
+        } else if (!minStr && maxStr) {
+          // chỉ có max → dưới X
+          where.push(`Price <= @priceMax`);
+          request.input("priceMax", sql.Decimal(18, 2), parseFloat(maxStr));
+        }
+      }
+    }
+
+    const whereClause = where.length > 1 ? "WHERE " + where.join(" AND ") : "";
+
+    // Đếm tổng
+    const countQuery = `SELECT COUNT(*) AS total FROM Product ${whereClause}`;
+    const countRes = await request.query(countQuery);
+
+    // Lấy data
+    const dataQuery = `
+      SELECT ProductID, Name, Brand, Price, ImageURL
+      FROM Product ${whereClause}
+      ORDER BY Price ASC, ProductID DESC
+      OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
+    `;
+    request.input("offset", sql.Int, offset);
+    request.input("limit", sql.Int, limit);
+    const dataRes = await request.query(dataQuery);
+
+    return {
+      data: dataRes.recordset,
+      total: countRes.recordset[0].total
+    };
+  }
 }
 
 export default Product;

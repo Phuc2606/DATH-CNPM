@@ -23,11 +23,12 @@ import ProtectedRoute from "./components/Auth/ProtectedRoute";
 import CategoriesManager from "./pages/admin/CategoriesManager";
 import InventoryManager from "./pages/admin/InventoryManager";
 import SupplierManager from "./pages/admin/SupplierManager";
-
+import ReviewManager from "./pages/admin/ReviewManager";
 import { ToastContainer } from "react-toastify";
 import Cart from "./pages/Cart/Cart";
 import Profile from "./pages/Profile/Profile";
-
+import Products from "./pages/Products/Products";
+import ProductDetail from "./pages/ProductDetail/ProductDetail";
 const App = () => {
   return (
     <div className="App">
@@ -37,6 +38,8 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/stores" element={<StoreLocator />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/products/:id" element={<ProductDetail />} />
 
           <Route element={<ProtectedRoute allowedRoles={["Customer"]} />}>
             <Route path="/profile" element={<Profile />} />
@@ -64,6 +67,7 @@ const App = () => {
             <Route path="categories" element={<CategoriesManager />} />
             <Route path="inventory" element={<InventoryManager />} />
             <Route path="suppliers" element={<SupplierManager />} />
+            <Route path="reviews" element={<ReviewManager />} />
           </Route>
         </Route>
       </Routes>

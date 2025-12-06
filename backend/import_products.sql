@@ -22,10 +22,10 @@ SET IDENTITY_INSERT Product ON;
 
 INSERT INTO Product (ProductID, Name, Brand, Category, Price, Stock, Description, ImageURL) VALUES
 -- Laptop (cat-1) - 10 sản phẩm
-(1,  N'MacBook Air M2 13"', 'Apple', 'cat-1', 28990000, 35, N'MacBook Air chip M2 siêu mỏng nhẹ', '/uploads/Laptop/MacBook-Air-M2.jpg'),
+(1,  N'MacBook Air M2 13', 'Apple', 'cat-1', 28990000, 35, N'MacBook Air chip M2 siêu mỏng nhẹ', '/uploads/Laptop/MacBook-Air-M2-13.jpg'),
 (2,  N'MacBook Pro 14 M3', 'Apple', 'cat-1', 48990000, 20, N'MacBook Pro 14 inch chip M3 mạnh mẽ', '/uploads/Laptop/MacBook-Pro-M3-14.jpg'),
 (3,  N'Dell XPS 13 9340', 'Dell', 'cat-1', 41990000, 25, N'Ultrabook cao cấp màn OLED', '/uploads/Laptop/Dell-Xps-13-9340.jpg'),
-(4,  N'ASUS Zenbook 14 OLED', 'Asus', 'cat-1', 27990000, 40, N'Màn hình OLED 2.8K siêu đẹp', 'uploads/Laptop/Asus-Zenbook-14-Oled.webp'),
+(4,  N'ASUS Zenbook 14 OLED', 'Asus', 'cat-1', 27990000, 40, N'Màn hình OLED 2.8K siêu đẹp', '/uploads/Laptop/Asus-Zenbook-14-Oled.webp'),
 (5,  N'Lenovo Legion 5 Pro 2024', 'Lenovo', 'cat-1', 39990000, 30, N'Laptop gaming RTX 4060', '/uploads/Laptop/Lenovo-Legion-5-Pro-2024.webp'),
 (6,  N'HP Spectre x360 14', 'HP', 'cat-1', 35990000, 22, N'Laptop 2-in-1 cảm ứng cao cấp', '/uploads/Laptop/HP-Spectre-X360-14.jpg'),
 (7,  N'MSI Stealth 16 Studio', 'MSI', 'cat-1', 52990000, 15, N'Laptop gaming mỏng nhẹ RTX 4070', '/uploads/Laptop/MSI-Stealth-16-Studio.png'),
@@ -127,7 +127,26 @@ INSERT INTO Voucher (Type, Discount, ApplicableCondition, AvailableDay, ExpiredD
   ('WELCOME',   30000,  'FIXED',    '2024-01-01', '2026-12-31');
 SET IDENTITY_INSERT Product OFF;
 
+---- HỖ TRỢ LỌC, TÌM KIẾM SẢN PHẨM THEO NAME, BRAND, PRICE ----
+-- THÊM INDEX CHO CÁC TRƯỜNG NAME, BRAND, PRICE ĐỂ TĂNG TỐC ĐỘ TÌM KIẾM
 
+ALTER TABLE Product 
+ALTER COLUMN Description NVARCHAR(MAX) COLLATE SQL_Latin1_General_CP1_CI_AI;
 
+CREATE INDEX idx_name ON Product(Name);
+
+-- Index lọc hãng
+CREATE INDEX idx_brand ON Product(Brand);
+
+-- Index lọc giá + sắp xếp giá
+CREATE INDEX idx_price ON Product(Price);
+
+-- Index ẩn hàng hết (Stock > 0)
+CREATE INDEX idx_stock ON Product(Stock) WHERE Stock > 0;
+
+-- Index bao phủ cho truy vấn lọc kết hợp (Brand, Price, Stock) và trả về cột cần thiết
+CREATE INDEX idx_covering_main 
+ON Product(Brand, Price, Stock)
+INCLUDE (ProductID, Name, Description, ImageURL, Category);
 
 

@@ -1,40 +1,73 @@
 import React, { useMemo, useState } from 'react';
 import './FilteredProducts.css';
 import useCart from '../../context/useCart';
-
-function parsePrice(priceStr) {
-  if (!priceStr) return 0;
-  const digits = priceStr.replace(/\D+/g, '');
-  return Number(digits) || 0;
+import ProductCard from "../ProductCard/ProductCard";
+function parsePrice(price) {
+  if (price == null) return 0;
+  const val = Number(price);
+  return isNaN(val) ? 0 : val;
 }
 
 const FilteredProducts = ({
-  products,
-  selectedCategory,
-  query,
-  setQuery,
-  minPrice,
-  setMinPrice,
-  maxPrice,
-  setMaxPrice,
-  sort,
-  setSort
-  , maxItems
+  products = [],
+  selectedCategory = 'all',
+  query = '',
+  setQuery = () => { },
+  minPrice = '',
+  setMinPrice = () => { },
+  maxPrice = '',
+  setMaxPrice = () => { },
+  sort = 'default',
+  setSort = () => { },
+  maxItems
 }) => {
   const [brand, setBrand] = useState('all');
 
   function inferBrandFromName(name) {
     if (!name) return 'Khác';
-    const known = ['Lenovo','Sony','Samsung','Iphone','Apple','Asus','Dell','HP'];
+    const known = ['Lenovo', 'Sony', 'Samsung', 'Iphone', 'Apple', 'Asus', 'Dell', 'HP'];
     const upper = name.toLowerCase();
     for (const b of known) {
       if (upper.includes(b.toLowerCase())) return b;
     }
     return 'Khác';
   }
+
+  // ensure we have a sensible API base (fallback to localhost:5000)
+  const API_BASE = (import.meta && import.meta.env && import.meta.env.VITE_API_URL)
+    ? import.meta.env.VITE_API_URL.replace(/\/+$/, '') // remove trailing slash if any
+    : 'http://localhost:5000';
+
   const processedProducts = useMemo(() => {
-    return products.map(p => ({ ...p, _priceNum: parsePrice(p.price), _brand: inferBrandFromName(p.name) }));
-  }, [products]);
+    return (products || []).map(p => {
+      const imageUrlRaw = p?.ImageURL ?? p?.image ?? p?.Image ?? '';
+      let img = '/assets/placeholder.png';
+
+      if (imageUrlRaw) {
+        const trimmed = String(imageUrlRaw).trim();
+        if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+          img = trimmed;
+        } else if (trimmed.startsWith('/')) {
+          // ImageURL already begins with /uploads/..., so just prefix domain
+          img = `${API_BASE}${trimmed}`;
+        } else {
+          // some APIs might give just filename; assume it lives under /uploads/
+          img = `${API_BASE}/uploads/${trimmed}`;
+        }
+      }
+
+      return {
+        id: p?.ProductID ?? p?.id,
+        name: p?.Name ?? p?.name ?? '',
+        category: p?.Category ?? p?.category ?? 'uncategorized',
+        price: p?.Price ?? p?.price ?? 0,
+        _priceNum: parsePrice(p?.Price ?? p?.price ?? 0),
+        brand: p?.Brand ?? p?.brand ?? '',
+        img,
+        _brand: inferBrandFromName(p?.Name ?? p?.name ?? '')
+      };
+    });
+  }, [products, API_BASE]);
 
   const brands = useMemo(() => {
     const list = Array.from(new Set(processedProducts.map(p => p._brand)));
@@ -46,10 +79,11 @@ const FilteredProducts = ({
   }, [processedProducts]);
 
   const filtered = useMemo(() => {
+    const q = String(query || '').toLowerCase();
     return processedProducts
-      .filter(p => selectedCategory === 'all' || p.category === selectedCategory)
+      .filter(p => selectedCategory === 'all' || String(p.category) === String(selectedCategory))
       .filter(p => brand === 'all' || p._brand === brand)
-      .filter(p => p.name.toLowerCase().includes(query.toLowerCase()))
+      .filter(p => (p.name || '').toLowerCase().includes(q))
       .filter(p => {
         if (minPrice && Number(minPrice) > p._priceNum) return false;
         if (maxPrice && Number(maxPrice) < p._priceNum) return false;
@@ -68,67 +102,14 @@ const FilteredProducts = ({
 
   return (
     <div className="fp-root">
-      {/* Controls */}
-      <div className="fp-controls">
-        <select className="fp-brand" value={brand} onChange={e => setBrand(e.target.value)}>
-          <option value="all">Tất cả</option>
-          {brands.map(b => (
-            <option key={b} value={b}>{b}</option>
-          ))}
-        </select>
-        <input
-          type="text"
-          className="fp-search"
-          placeholder="Tìm theo tên sản phẩm..."
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-        />
-        <div className="fp-price-range">
-          <input
-            type="number"
-            placeholder="Giá từ"
-            value={minPrice}
-            onChange={e => setMinPrice(e.target.value)}
-          />
-          <input
-            type="number"
-            placeholder="Đến"
-            value={maxPrice}
-            onChange={e => setMaxPrice(e.target.value)}
-          />
-        </div>
-        <select
-          className="fp-sort"
-          value={sort}
-          onChange={e => setSort(e.target.value)}
-        >
-          <option value="default">Mặc định</option>
-          <option value="price-asc">Giá thấp → cao</option>
-          <option value="price-desc">Giá cao → thấp</option>
-          <option value="name-asc">Tên A → Z</option>
-          <option value="name-desc">Tên Z → A</option>
-        </select>
-      </div>
 
       <div className="products-grid">
-        {filtered.slice(0, typeof maxItems === 'number' ? maxItems : filtered.length).map(p => (
-          <article key={p.id} className="product-card">
-            <div className="product-card__media">
-              <img
-                src={p.img}
-                alt={p.name}
-                onError={e => (e.target.src = '/assets/placeholder.png')}
-              />
-            </div>
-            <div className="product-card__body">
-              <h3 className="product-name">{p.name}</h3>
-              <div className="product-footer">
-                <div className="product-price">{p.price}</div>
-                <button className="btn btn--small" onClick={() => addItem(p, 1)}>Thêm vào giỏ</button>
-              </div>
-            </div>
-          </article>
-        ))}
+        {filtered
+          .slice(0, maxItems ?? filtered.length)
+          .map(p => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+
       </div>
     </div>
   );

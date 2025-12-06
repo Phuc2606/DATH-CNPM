@@ -21,7 +21,7 @@ export const useCart = () => {
 
 export const CartProvider = ({ children }) => {
   const [rawCart, setRawCart] = useState(null);
-  const [appliedVouchers, setAppliedVouchers] = useState([]); // ← MỚI
+  const [appliedVouchers, setAppliedVouchers] = useState([]);
   const [summary, setSummary] = useState({
     subtotal: 0,
     shippingFee: 30000,
@@ -141,7 +141,32 @@ export const CartProvider = ({ children }) => {
       fetchCart();
     }
   }, [fetchCart]);
+  // THÊM SẢN PHẨM VÀO GIỎ
+  const addItem = useCallback(async (productId, quantity = 1) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Bạn cần đăng nhập");
+      return;
+    }
 
+    try {
+      setActionLoading(true);
+
+      await axios.post(
+        `${API_URL}/cart/items`,
+        { productId, quantity },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      toast.success("Đã thêm vào giỏ hàng");
+      await fetchCart();
+
+    } catch (err) {
+      toast.error("Không thể thêm sản phẩm");
+    } finally {
+      setActionLoading(false);
+    }
+  }, [API_URL, fetchCart]);
   // === CÁC HÀM UPDATE ===
   const updateQuantity = useCallback(async (productId, newQuantity) => {
     if (newQuantity < 0 || !cartRef.current) return;
@@ -230,6 +255,7 @@ export const CartProvider = ({ children }) => {
     updateQuantity,
     removeItem,
     clearCart,
+    addItem,
   }), [
     rawCart,
     summary,

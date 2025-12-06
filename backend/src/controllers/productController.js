@@ -48,6 +48,46 @@ export const getProductById = async (req, res) => {
   }
 };
 
+// LỌC + TÌM KIẾM – CHỈ DÙNG Name, Brand, Price
+export const filterProducts = async (req, res) => {
+  try {
+    const {
+      search,     // tìm tên: MacBook, RTX...
+      brand,      // hãng: Apple, Asus, Acer...
+      price,      // Khoảng giá: "20-40", chính xác: "30", dưới: "-50", trên: "60-"
+      page = 1,
+      limit = 12
+    } = req.query;
+
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 12;
+
+    const result = await ProductModel.Filter({
+      search: search?.trim() || null,
+      brand: brand?.trim() || null,
+      priceRange: price || null,
+      page: pageNum,
+      limit: limitNum
+    });
+
+    res.json({
+      data: result.data,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total: result.total,
+        totalPages: Math.ceil(result.total / limitNum)
+      }
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Lỗi lọc sản phẩm" });
+  }
+};
+
+
+
 // --- ADMIN ONLY (Chỉ Admin mới gọi được - Chặn ở Router) ---
 
 // 3. Tạo sản phẩm (Có xử lý ảnh)
