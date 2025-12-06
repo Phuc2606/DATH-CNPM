@@ -1,18 +1,26 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import productService from "../../services/productService";
+import categoryService from "../../services/categoryService";
 import {
   IconPlus,
   IconEdit,
   IconTrash,
-  IconX,
   IconPhoto,
+  IconBox,
 } from "@tabler/icons-react";
 
-// Cấu hình URL
-const API_URL = "http://localhost:5000/api";
 const UPLOAD_URL = "http://localhost:5000";
 
 const ProductManager = () => {
+  const [pagination, setPagination] = useState({
+    page: 1,
+    total: 0,
+    totalPages: 1,
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -32,17 +40,25 @@ const ProductManager = () => {
   const [previewImage, setPreviewImage] = useState("");
 
   useEffect(() => {
-    fetchProducts();
+    fetchProducts(currentPage);
     fetchCategories();
-  }, []);
+  }, [currentPage]);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (page = 1) => {
     try {
       setLoading(true);
-      const res = await axios.get(`${API_URL}/admin/products`);
+      console.log("Đang tải trang số:", page);
+      const res = await productService.getAdminProducts({
+        page: page,
+        limit: 10,
+        search: searchTerm,
+      });
+
       setProducts(res.data);
+      setPagination(res.pagination);
+      setCurrentPage(page);
     } catch (err) {
-      console.error("Lỗi lấy sản phẩm:", err);
+      console.error("Lỗi:", err);
     } finally {
       setLoading(false);
     }
@@ -50,10 +66,11 @@ const ProductManager = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get(`${API_URL}/admin/categories`);
-      setCategories(res.data);
+      const res = await categoryService.getAllCategories();
+      setCategories(res);
     } catch (err) {
       console.error("Lỗi lấy danh mục:", err);
+      setCategories([]);
     }
   };
 
@@ -107,12 +124,14 @@ const ProductManager = () => {
     e.preventDefault();
     try {
       const data = new FormData();
+      //      const Category = await categoryService.getCategoryById(formData.Category);
       data.append("Name", formData.Name);
       data.append("Brand", formData.Brand);
       data.append("Category", formData.Category);
       data.append("Price", formData.Price);
       data.append("Stock", formData.Stock);
       data.append("Description", formData.Description);
+      //      data.append("CategoryName", Category.Name);
       if (formData.image) {
         data.append("image", formData.image);
       }
@@ -120,14 +139,10 @@ const ProductManager = () => {
       const config = { headers: { "Content-Type": "multipart/form-data" } };
 
       if (isEditing) {
-        await axios.put(
-          `${API_URL}/admin/products/${formData.ProductID}`,
-          data,
-          config
-        );
+        await productService.updateProduct(formData.ProductID, data);
         alert("Cập nhật thành công!");
       } else {
-        await axios.post(`${API_URL}/admin/products`, data, config);
+        await productService.createProduct(data);
         alert("Thêm mới thành công!");
       }
 
@@ -141,13 +156,19 @@ const ProductManager = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa?")) {
       try {
-        await axios.delete(`${API_URL}/admin/products/${id}`);
+        await productService.deleteProduct(id);
         alert("Đã xóa!");
         fetchProducts();
       } catch (err) {
         alert("Lỗi xóa: " + (err.response?.data?.message || err.message));
       }
     }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setCurrentPage(1); // Reset về trang 1
+    fetchProducts(1);
   };
 
   const formatCurrency = (amount) => {
@@ -166,13 +187,27 @@ const ProductManager = () => {
     <div className="container mt-4">
       {/* HEADER */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="fw-bold text-dark">Quản lý sản phẩm</h2>
-        <button
-          className="btn btn-primary d-flex align-items-center gap-2"
-          onClick={() => openModal()}
-        >
-          <IconPlus size={20} /> Thêm sản phẩm
-        </button>
+        <h2 className="fw-bold text-dark d-flex align-items-center gap-2">
+          <IconBox size={"28px"} /> Quản lý sản phẩm
+        </h2>
+        <div className="d-flex gap-2">
+          {/* Thanh tìm kiếm */}
+          <form onSubmit={handleSearch} className="d-flex">
+            <input
+              type="text"
+              className="form-control me-2"
+              placeholder="Tìm tên SP..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <button className="btn btn-outline-secondary" type="submit">
+              Tìm
+            </button>
+          </form>
+          <button className="btn btn-primary" onClick={() => openModal()}>
+            <IconPlus size={20} /> Thêm
+          </button>
+        </div>
       </div>
 
       {/* TABLE */}
@@ -236,7 +271,7 @@ const ProductManager = () => {
                     </td>
                     <td>
                       <span
-                        className={`badge ${
+                        className={`badge text-light ${
                           p.Stock < 10 ? "bg-danger" : "bg-success"
                         }`}
                       >
@@ -263,6 +298,43 @@ const ProductManager = () => {
                 ))}
               </tbody>
             </table>
+            {pagination.totalPages > 1 && (
+              <div className="d-flex justify-content-center mt-4">
+                <nav>
+                  <ul className="pagination">
+                    <li
+                      className={`page-item ${
+                        currentPage === 1 ? "disabled" : ""
+                      }`}
+                    >
+                      <button
+                        className="page-link"
+                        onClick={() => setCurrentPage((prev) => prev - 1)}
+                      >
+                        Trước
+                      </button>
+                    </li>
+                    <li className="page-item">
+                      <span className="page-link text-primary">
+                        Trang {currentPage} / {pagination.totalPages}
+                      </span>
+                    </li>
+                    <li
+                      className={`page-item ${
+                        currentPage === pagination.totalPages ? "disabled" : ""
+                      }`}
+                    >
+                      <button
+                        className="page-link"
+                        onClick={() => setCurrentPage((prev) => prev + 1)}
+                      >
+                        Sau
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            )}
           </div>
         </div>
       )}

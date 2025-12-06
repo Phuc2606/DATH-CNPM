@@ -1,3 +1,6 @@
+USE OnlineShopDB;
+GO
+
 INSERT INTO Branch (Name, Address, Expense, AvailableCapacity) VALUES
 ('Branch HCM 1', 'District 1, HCM', 15000, 200),
 ('Branch HCM 2', 'District 3, HCM', 10000, 180),
@@ -14,6 +17,8 @@ INSERT INTO Category (CategoryID, Name, Icon) VALUES
 ('cat-6', N'Tablet', 'PiDeviceTabletFill'),
 ('cat-7', N'Camera', 'PiCameraFill'),
 ('cat-8', N'Gaming', 'PiGameControllerFill');
+
+SET IDENTITY_INSERT Product ON;
 
 INSERT INTO Product (ProductID, Name, Brand, Category, Price, Stock, Description, ImageURL) VALUES
 -- Laptop (cat-1) - 10 sản phẩm
@@ -120,5 +125,9 @@ INSERT INTO Voucher (Type, Discount, ApplicableCondition, AvailableDay, ExpiredD
   ('GIAM100K', 100000, 'FIXED',    '2024-01-01', '2026-12-31'),
   ('FREESHIP',  0,      'FREESHIP', '2024-01-01', '2026-12-31'),
   ('WELCOME',   30000,  'FIXED',    '2024-01-01', '2026-12-31');
+SET IDENTITY_INSERT Product OFF;
+
+
+
 
 

@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { HiEye, HiEyeOff } from "react-icons/hi";
 import { login } from "../../services/authService";
-import AuthLogo from "../../components/Auth/AuthLogo";
 import { toast } from "react-toastify";
 const Login = () => {
   const navigate = useNavigate();
@@ -42,7 +41,6 @@ const Login = () => {
 
   return (
     <div className="relative">
-      <AuthLogo />
       <div className="flex justify-center items-center h-screen bg-gray-200">
         <div className="w-96 rounded-2xl bg-white p-8 shadow-md">
           <h2 className="text-2xl text-center font-semibold mb-4">Đăng Nhập</h2>

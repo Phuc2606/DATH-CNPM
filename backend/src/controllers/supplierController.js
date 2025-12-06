@@ -1,12 +1,11 @@
-import Supplier from "../models/Supplier.js";
-import { sql } from "../config/database.js";
+import Supplier from "../models/Supplier.js"; //
 
 export const getAllSuppliers = async (req, res) => {
   try {
     const list = await Supplier.findAll();
     res.json(list);
   } catch (err) {
-    res.status(500).json({ message: "Lỗi lấy NCC", err });
+    res.status(500).json({ message: "Lỗi lấy NCC", error: err.message });
   }
 };
 
@@ -27,7 +26,7 @@ export const updateSupplier = async (req, res) => {
     await supplier.save();
     res.json({ message: "Cập nhật NCC thành công" });
   } catch (error) {
-    res.status(500).json({ message: "Lỗi cập nhật NCC", error });
+    res.status(500).json({ message: "Lỗi cập nhật NCC", error: error.message });
   }
 };
 
@@ -43,7 +42,8 @@ export const deleteSupplier = async (req, res) => {
 export const linkProduct = async (req, res) => {
   try {
     const { ProductID, SupplierID } = req.body;
-    const linked = await SupplierModel.linkProduct({
+    // Sửa SupplierModel -> Supplier cho đúng tên import
+    const linked = await Supplier.linkProduct({
       ProductID,
       SupplierID,
     });
@@ -58,4 +58,34 @@ export const linkProduct = async (req, res) => {
   }
 };
 
-export default { getAllSuppliers, createSupplier, updateSupplier, linkProduct };
+export const unlinkProduct = async (req, res) => {
+  try {
+    // Lấy ID từ body hoặc query đều được, ở đây mình dùng body cho thống nhất
+    const { ProductID, SupplierID } = req.body;
+    await Supplier.unlinkProduct({ ProductID, SupplierID });
+    res.json({ message: "Đã hủy liên kết sản phẩm" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const getSupplierProducts = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const products = await Supplier.getLinkedProducts(id);
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Nhớ export deleteSupplier
+export default {
+  getAllSuppliers,
+  createSupplier,
+  updateSupplier,
+  deleteSupplier,
+  linkProduct,
+  unlinkProduct,
+  getSupplierProducts,
+};

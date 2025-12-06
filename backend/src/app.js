@@ -9,10 +9,13 @@ import { fileURLToPath } from "url";
 // Import routes
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import categoriesRoutes from "./routes/categoriesRoutes.js";
 import inventoryRoutes from "./routes/inventoryRoutes.js";
 import checkoutRoutes from "./routes/checkoutRoutes.js"
 import voucherRoutes from './routes/voucherRoutes.js';
 import orderRoutes from "./routes/orderRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
+
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,6 +43,9 @@ app.use("/api/admin", inventoryRoutes);
 app.use("/api", checkoutRoutes);
 app.use('/api/vouchers', voucherRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/inventory", inventoryRoutes);
+app.use("/api/categories", categoriesRoutes);
+app.use("/api/products", productRoutes);
 // Health check
 app.get("/api/health", (req, res) => {
   res.status(200).json({ message: "Server is running" });
