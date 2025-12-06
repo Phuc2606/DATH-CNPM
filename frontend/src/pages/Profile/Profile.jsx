@@ -20,6 +20,9 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState("profile");
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [showOrderModal, setShowOrderModal] = useState(false);
+
 
   const navigate = useNavigate();
 
@@ -313,11 +316,15 @@ const Profile = () => {
                         </div>
 
                         <button
-                          onClick={() => navigate(`/checkout-success/${order.OrderID}`)}
+                          onClick={() => {
+                            setSelectedOrder({ order, items });
+                            setShowOrderModal(true);
+                          }}
                           className="btn-outline"
                         >
                           Xem chi tiết
                         </button>
+
                       </div>
                     );
                   })}
@@ -325,6 +332,60 @@ const Profile = () => {
               )}
             </div>
           )}
+          {showOrderModal && selectedOrder && (
+            <div className="order-modal-overlay" onClick={() => setShowOrderModal(false)}>
+              <div className="order-modal" onClick={(e) => e.stopPropagation()}>
+
+                <h2>Chi tiết đơn hàng #{selectedOrder.order.OrderID}</h2>
+                <p className="order-date-modal">{formatDateTime(selectedOrder.order.OrderDate)}</p>
+
+                <div className="modal-section">
+                  <h3>Thông tin đơn hàng</h3>
+                  <p><strong>Mã đơn hàng:</strong> #{selectedOrder.order.OrderID}</p>
+                  <p><strong>Phương thức thanh toán:</strong> {selectedOrder.order.PaymentMethod}</p>
+                  <p><strong>Trạng thái thanh toán:</strong> {selectedOrder.order.PaymentStatus}</p>
+                  <p><strong>Tạm tính:</strong> {formatPrice(selectedOrder.order.Subtotal)} đ</p>
+                  <p><strong>Giảm giá:</strong> {formatPrice(selectedOrder.order.DiscountAmount)} đ</p>
+                  <p><strong>Phí giao hàng:</strong> {formatPrice(selectedOrder.order.ShippingFee)} đ</p>
+                  <p><strong>Tổng tiền:</strong> {formatPrice(selectedOrder.order.TotalAmount)} đ</p>
+                </div>
+
+                <div className="modal-section">
+                  <h3>Người nhận</h3>
+                  <p><strong>Tên:</strong> {selectedOrder.order.recipient?.name || "—"}</p>
+                  <p><strong>SĐT:</strong> {selectedOrder.order.recipient?.phone || "—"}</p>
+                  <p><strong>Địa chỉ:</strong> {selectedOrder.order.recipient?.address || "—"}</p>
+                </div>
+
+                <div className="modal-section">
+                  <h3>Sản phẩm</h3>
+                  <div className="modal-product-list">
+                    {selectedOrder.items.map((item, i) => (
+                      <div key={i} className="modal-product-item">
+                        <img
+                          src={
+                            item.ImageUrl?.startsWith("http")
+                              ? item.ImageUrl
+                              : `http://localhost:5000${item.ImageUrl}`
+                          }
+                          alt={item.ProductName}
+                        />
+                        <div>
+                          <p className="p-name">{item.ProductName}</p>
+                          <p>{item.Quantity} × {formatPrice(item.UnitPrice)} đ</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <button className="modal-close" onClick={() => setShowOrderModal(false)}>
+                  Đóng
+                </button>
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </div>

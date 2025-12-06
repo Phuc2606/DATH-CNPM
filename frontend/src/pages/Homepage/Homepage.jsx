@@ -2,23 +2,80 @@ import React, { useState, useEffect } from "react";
 import Header from "../../components/Header/Header";
 import Footer from "../../components/Footer/Footer";
 import "./Homepage.css";
-import { categories } from "../../data/categories";
-import { products } from "../../data/products";
 import * as PiIcons from "react-icons/pi";
-import { PiGridFourBold } from "react-icons/pi";
+import { PiGridFourBold, PiTagBold } from "react-icons/pi";
 import FilteredProducts from "../../components/FilteredProducts/FilteredProducts";
 import { useNavigate } from "react-router-dom";
-import { getCurrentUser, logout } from "../../services/authService";
+import axios from "axios";
 
 const Homepage = () => {
+  const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [query, setQuery] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [sort, setSort] = useState("default");
   const [moreOpen, setMoreOpen] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [featured, setFeatured] = useState([]);
 
-  // User state to show greeting and logout
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/categories");
+
+        const mapped = res.data.map((c) => ({
+          id: c.CategoryID,
+          name: c.Name,
+          icon: c.Icon,
+        }));
+
+        setCategories(mapped);
+      } catch (err) {
+        console.error("Lỗi tải categories:", err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  //   LOAD PRODUCTS API
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoadingProducts(true);
+        const res = await axios.get("http://localhost:5000/api/products");
+
+        let list = res.data.map((p) => ({
+          ...p,
+          image: p.Image
+            ? `http://localhost:5000/uploads/${p.Image}`
+            : "/placeholder.jpg",
+        }));
+
+        const featuredList = Object.values(
+          list.reduce((acc, product) => {
+            if (!acc[product.Category]) {
+              acc[product.Category] = product;
+            }
+            return acc;
+          }, {})
+        );
+
+        setFeatured(featuredList);
+      } catch (err) {
+        console.error("Lỗi tải products:", err);
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+
+
 
   return (
     <div className="homepage-root">
@@ -30,8 +87,7 @@ const Homepage = () => {
               <div className="hp-hero__content">
                 <h1 className="hp-title">Công nghệ cho cuộc sống tốt hơn</h1>
                 <p className="hp-subtitle">
-                  Khuyến mãi đến 30% cho Laptop và phụ kiện. Giao hàng toàn
-                  quốc.
+                  Khuyến mãi đến 30% cho Laptop và phụ kiện. Giao hàng toàn quốc.
                 </p>
                 <div className="hp-hero__actions">
                   <button className="btn btn--primary">Mua ngay</button>
@@ -64,6 +120,7 @@ const Homepage = () => {
                 const maxVisible = 5;
                 const visible = categories.slice(0, maxVisible);
                 const extra = categories.slice(maxVisible);
+
                 return (
                   <>
                     <button
@@ -81,7 +138,7 @@ const Homepage = () => {
                     </button>
 
                     {visible.map((cat) => {
-                      const Icon = PiIcons[cat.icon];
+                      const Icon = cat.icon ? PiIcons[cat.icon] : PiTagBold;
                       return (
                         <button
                           key={cat.id}
@@ -106,10 +163,11 @@ const Homepage = () => {
                           <div className="cat-card__icon">⋯</div>
                           <div className="cat-card__name">Thêm</div>
                         </button>
+
                         {moreOpen && (
                           <div className="more-menu" role="menu">
                             {extra.map((cat) => {
-                              const Icon = PiIcons[cat.icon];
+                              const Icon = cat.icon ? PiIcons[cat.icon] : PiTagBold;
                               return (
                                 <button
                                   key={cat.id}
@@ -123,9 +181,7 @@ const Homepage = () => {
                                   <div className="cat-card__icon">
                                     {Icon && <Icon />}
                                   </div>
-                                  <div className="cat-card__name">
-                                    {cat.name}
-                                  </div>
+                                  <div className="cat-card__name">{cat.name}</div>
                                 </button>
                               );
                             })}
@@ -145,52 +201,49 @@ const Homepage = () => {
           <div className="container">
             <div className="section-head">
               <h2 className="section-title">Sản phẩm nổi bật</h2>
-              <a className="link-muted" href="#">
-                Xem tất cả
-              </a>
             </div>
 
-            {/* <FilteredProducts /> */}
-            <FilteredProducts
-              products={products}
-              selectedCategory={selectedCategory}
-              query={query}
-              setQuery={setQuery}
-              minPrice={minPrice}
-              setMinPrice={setMinPrice}
-              maxPrice={maxPrice}
-              setMaxPrice={setMaxPrice}
-              sort={sort}
-              setSort={setSort}
-              maxItems={12}
-            />
+            {loadingProducts ? (
+              <p>Đang tải sản phẩm...</p>
+            ) : (
+              <FilteredProducts
+                products={featured}
+                selectedCategory={selectedCategory}
+                query={query}
+                setQuery={setQuery}
+                minPrice={minPrice}
+                setMinPrice={setMinPrice}
+                maxPrice={maxPrice}
+                setMaxPrice={setMaxPrice}
+                sort={sort}
+                setSort={setSort}
+                maxItems={12}
+              />
+
+
+            )}
           </div>
         </section>
 
         {/* === Newsletter === */}
         <section className="hp-newsletter">
-          <div className="container newsletter-inner">
-            <div>
-              <h3>Nhận thông tin khuyến mãi</h3>
-              <p>Đăng ký email để nhận mã giảm giá và tin mới nhất.</p>
-            </div>
-            <form
-              className="newsletter-form"
-              onSubmit={(e) => {
-                e.preventDefault();
-                alert("Cảm ơn!");
-              }}
-            >
+          <div className="newsletter-inner">
+            <h2 className="newsletter-title">Nhận thông tin khuyến mãi</h2>
+            <p className="newsletter-subtitle">
+              Đăng ký email để nhận mã giảm giá và tin mới nhất.
+            </p>
+
+            <div className="newsletter-form">
               <input
-                aria-label="email"
                 type="email"
                 placeholder="Email của bạn"
-                required
+                className="newsletter-input"
               />
-              <button className="btn btn--primary">Đăng ký</button>
-            </form>
+              <button className="newsletter-btn">ĐĂNG KÝ</button>
+            </div>
           </div>
         </section>
+
       </main>
     </div>
   );

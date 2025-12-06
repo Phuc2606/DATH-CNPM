@@ -1,30 +1,32 @@
 import React, { useState, useRef } from "react";
 import "./Navbar.css";
 import { AiOutlineSearch } from "react-icons/ai";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const [text, setText] = useState("");
   const searchRef = useRef(null);
+  const navigate = useNavigate();
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      if (text.trim() === "") {
+        navigate("/products");
+      } else {
+        navigate(`/products?search=${encodeURIComponent(text)}`);
+      }
+    }
+  };
+
 
   return (
     <div className="navbar">
       <div className={`nav-links ${open ? "open" : ""}`}>
-        <Link to="/" className="nav-item">
-          Trang chủ
-        </Link>
-
-        <Link to="/products" className="nav-item">
-          Sản phẩm
-        </Link>
-
-        <Link to="/stores" className="nav-item">
-          Cửa hàng
-        </Link>
-
-        <Link to="/profile" className="nav-item">
-          Tài khoản
-        </Link>
+        <Link to="/" className="nav-item">Trang chủ</Link>
+        <Link to="/products" className="nav-item">Sản phẩm</Link>
+        <Link to="/stores" className="nav-item">Cửa hàng</Link>
+        <Link to="/profile" className="nav-item">Tài khoản</Link>
       </div>
 
       <div className="nav-actions">
@@ -38,6 +40,16 @@ const Navbar = () => {
             ref={searchRef}
             placeholder="Tìm kiếm sản phẩm..."
             aria-label="Tìm kiếm sản phẩm"
+            value={text}
+            onChange={(e) => {
+              const v = e.target.value;
+              setText(v);
+              if (v.trim() === "") {
+                navigate("/products");
+              }
+            }}
+
+            onKeyDown={handleKeyDown}
           />
         </div>
 
