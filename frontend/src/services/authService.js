@@ -34,6 +34,7 @@ export const login = async (email, password) => {
 export const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
+  window.dispatchEvent(new Event("auth-change"));
   toast.success("Đăng xuất thành công!");
   return apiClient.post("/auth/logout");
 };
