@@ -1,14 +1,14 @@
 import express from "express";
-import { getProfile, updateProfile, getAllUsers, getUserOrderHistory } from "../controllers/userController.js";
+import {getAllUsers, getProfile, getUserOrderHistory, updateProfile } from "../controllers/userController.js";
 import { verifyToken, isAdmin } from "../middleware/authMiddleware.js";
-import * as userController from "../controllers/userController.js";
+import { addItemToCart, getCart, clearCart, removeItemFromCart, updateItemQuantity} from "../controllers/cartController.js"
 const router = express.Router();
 
 // --- USER CÁ NHÂN ---
 router.get("/profile", verifyToken, getProfile);
 router.put("/profile", verifyToken, updateProfile);
 // --- ADMIN QUẢN LÝ ---
-router.get("/", verifyToken, isAdmin, userController.getAllUsers);
+router.get("/", verifyToken, isAdmin, getAllUsers);
 router.get("/orders", verifyToken, getUserOrderHistory);
 router.get("/users", verifyToken, getAllUsers);
 
@@ -23,8 +23,4 @@ router.delete("/cart/items/:productId", verifyToken, removeItemFromCart);
 router.patch("/cart/items/:productId", verifyToken, updateItemQuantity);
 //------------------------------- Xóa toàn bộ giỏ hàng -------------------------------
 router.delete("/cart", verifyToken, clearCart);
-import * as userController from "../controllers/userController.js";
-
-const router = express.Router();
-
 export default router;

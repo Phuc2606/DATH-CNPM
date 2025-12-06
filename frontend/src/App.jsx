@@ -62,6 +62,7 @@ const App = () => {
             <Route path="suppliers" element={<SupplierManager />} />
           </Route>
         </Route>
+        </Route>
       </Routes>
 
       <ToastContainer
