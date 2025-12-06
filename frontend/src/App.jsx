@@ -38,11 +38,15 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/stores" element={<StoreLocator />} />
 
-        <Route element={<ProtectedRoute allowedRoles={["Customer"]} />}>
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/checkout-success/:orderId" element={<CheckoutSuccess />} />
+          <Route element={<ProtectedRoute allowedRoles={["Customer"]} />}>
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route
+              path="/checkout-success/:orderId"
+              element={<CheckoutSuccess />}
+            />
+          </Route>
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
@@ -61,7 +65,6 @@ const App = () => {
             <Route path="inventory" element={<InventoryManager />} />
             <Route path="suppliers" element={<SupplierManager />} />
           </Route>
-        </Route>
         </Route>
       </Routes>
 
