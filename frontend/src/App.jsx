@@ -17,6 +17,9 @@ import ContactsManager from "./pages/admin/ContactsManager";
 import FAQsManager from "./pages/admin/FAQsManager";
 import ProtectedRoute from "./components/Auth/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
+import Cart from "./pages/Cart/Cart";
+import Profile from "./pages/Profile/Profile";
+
 const App = () => {
   return (
     <div className="App">
@@ -26,8 +29,10 @@ const App = () => {
         <Route path="/" element={<Homepage />} />
 
         <Route element={<ProtectedRoute allowedRoles={["Customer"]} />}>
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/checkout/success" element={<CheckoutSuccess />} />
+          <Route path="/checkout-success/:orderId" element={<CheckoutSuccess />} />
         </Route>
         <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
           <Route path="/admin" element={<AdminLayout />}>

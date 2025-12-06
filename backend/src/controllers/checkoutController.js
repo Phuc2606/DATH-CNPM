@@ -1,69 +1,165 @@
-import CartModel from "../models/CartModel.js";
-import OrderModel from "../models/OrderModel.js";
+import { sql } from "../config/database.js";
+import Cart from "../models/Cart.js";
+import Product from "../models/Product.js";
+import Order from "../models/Order.js";
+import Voucher from "../models/Voucher.js";
 
 export const checkout = async (req, res) => {
+  const {
+    shippingAddress,
+    recipientName,
+    phone,
+    note = "",
+    paymentMethod = "COD", // COD, MOMO, VNPAY...
+    voucherCode = "",
+  } = req.body;
+  console.log("voucherCode received:", voucherCode);
+  const customerId = req.user.id; 
+
+  if (!shippingAddress || !recipientName || !phone) {
+    return res.status(400).json({ success: false, message: "Vui lòng nhập đầy đủ thông tin giao hàng" });
+  }
+
+  const transaction = new sql.Transaction();
   try {
-    const { cartId, customerId, paymentMethod } = req.body;
+    await transaction.begin();
 
-    const cart = await CartModel.findById(cartId);
-    if (!cart) return res.status(404).json({ message: "Cart not found" });
-
-    const items = await CartModel.getItems(cartId);
-    if (!items || items.length === 0)
-      return res.status(400).json({ message: "Cart is empty" });
-
-    // Calculate total
-    let total = 0;
-    for (const it of items) {
-      total += (it.Price || 0) * (it.Quantity || 1);
+    // 1. Lấy giỏ hàng đầy đủ 
+    const cartData = await Cart.getFullCart(customerId);
+    if (!cartData || cartData.items.length === 0) {
+      await transaction.rollback();
+      return res.status(400).json({ success: false, message: "Giỏ hàng trống" });
     }
 
-    const order = new OrderModel({
+    const items = cartData.items;
+    const subtotal = cartData.summary.subtotal;
+
+    // 2. Tính phí ship
+    const shippingFee = subtotal >= 500000 ? 0 : 30000; // Miễn phí ship từ 500k
+
+    // 3. Xử lý voucher
+    let discountAmount = 0;
+    const appliedVouchers = [];
+
+    if (voucherCode) {
+      const codes = voucherCode.split(',').map(c => c.trim().toUpperCase()).filter(Boolean);
+
+      for (const code of codes) {
+        const voucher = await Voucher.findByCode(code, { transaction });
+        if (!voucher) throw new Error(`Mã "${code}" không hợp lệ hoặc hết hạn`);
+
+        const hasStock = await Voucher.hasStock(voucher.VoucherID, { transaction });
+        if (!hasStock) throw new Error(`Mã "${code}" đã hết lượt sử dụng`);
+
+        // Tính giảm giá cho từng mã
+        let thisDiscount = 0;
+        if (voucher.ApplicableCondition === "PERCENT") {
+          thisDiscount = Math.round(subtotal * (voucher.Discount / 100));
+        } else if (voucher.ApplicableCondition === "FIXED") {
+          thisDiscount = voucher.Discount;
+        } else if (voucher.ApplicableCondition === "FREESHIP") {
+          thisDiscount = shippingFee;
+          shippingFee = 0; // miễn phí ship luôn
+        }
+
+        discountAmount += thisDiscount;
+        appliedVouchers.push({
+          voucherId: voucher.VoucherID,
+          code,
+          discount: thisDiscount
+        });
+
+      }
+    }
+
+    // 4. Tính tổng cuối cùng (làm tròn về đồng)
+    const totalAmount = Math.round(subtotal - discountAmount + shippingFee);
+
+    // 5. Tạo đơn hàng
+    const orderResult = await Order.create({
       CustomerID: customerId,
-      TotalAmount: total,
-    });
-    await order.save();
+      Subtotal: subtotal,
+      DiscountAmount: discountAmount,
+      ShippingFee: shippingFee,
+      TotalAmount: totalAmount,
+      PaymentMethod: paymentMethod.toUpperCase(),
+      PaymentStatus: paymentMethod === "COD" ? "Pending" : "Paid",
+      Status: "Pending",
+      RecipientInfo: `${recipientName} | ${phone} | ${shippingAddress}`,
+      Note: note,
+      VoucherList: JSON.stringify(appliedVouchers),
+    }, { transaction });
 
-    for (const it of items) {
-      await OrderModel.addItem(order.OrderID, {
-        ProductID: it.ProductID,
-        Quantity: it.Quantity,
-        Price: it.Price,
-      });
+    const orderId = orderResult.OrderID;
+
+    // 6. Thêm OrderItem + giảm stock
+    for (const item of items) {
+      // Kiểm tra + giảm stock (chỉ giảm nếu còn đủ)
+      const updated = await Product.updateStockSafe(item.productId, item.quantity, { transaction });
+      if (!updated) {
+        throw new Error(`Sản phẩm "${item.name}" đã hết hàng hoặc không đủ số lượng`);
+      }
+
+      // Thêm vào chi tiết đơn
+      await Order.addOrderItem(orderId, {
+        ProductID: item.productId,
+        Quantity: item.quantity,
+        UnitPrice: item.price,
+        FinalPrice: item.price,
+      }, { transaction });
     }
 
-    // Payment placeholder: create Payment record (simple)
-    // In real app integrate payment gateway
-    const pool = await (await import("../config/database.js")).sql.connect();
-    await pool
-      .request()
-      .input(
-        "orderId",
-        (
-          await import("../config/database.js")
-        ).sql.Int,
-        order.OrderID
-      )
-      .input(
-        "amount",
-        (await import("../config/database.js")).sql.Decimal(18, 2),
-        total
-      )
-      .input(
-        "method",
-        (
-          await import("../config/database.js")
-        ).sql.NVarChar,
-        paymentMethod || "unknown"
-      )
-      .query(
-        "INSERT INTO Payment (OrderID,Amount,Method,PaidAt) VALUES (@orderId,@amount,@method,GETDATE())"
-      );
+    // 7. Ghi nhận voucher đã dùng
+    for (const v of appliedVouchers) {
+      const vid = v.voucherId;
 
-    res.status(201).json({ message: "Order created", orderId: order.OrderID });
+      await Voucher.markAsUsed(vid, customerId, orderId, { transaction });
+
+      const request = transaction.request();
+      const result = await request
+        .input("vid", sql.Int, vid)
+        .query(`
+      UPDATE Voucher
+      SET TotalQuantity = TotalQuantity - 1
+      WHERE VoucherID = @vid AND TotalQuantity > 0;
+
+      SELECT @@ROWCOUNT AS affected;
+    `);
+
+      if (result.recordset[0].affected === 0) {
+        throw new Error(`Voucher ID ${vid} đã hết lượt sử dụng`);
+      }
+    }
+
+    // 8. Xóa giỏ hàng
+    await Cart.clearByCustomerId(customerId, { transaction });
+
+    await transaction.commit();
+
+    return res.status(201).json({
+      success: true,
+      message: "Đặt hàng thành công!",
+      data: {
+        orderId,
+        totalAmount,
+        paymentMethod,
+        expectedDelivery: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // +5 ngày
+        items: items.map(i => ({
+          productId: i.productId,
+          name: i.name,
+          image: i.image,
+          price: i.price,
+          quantity: i.quantity,
+        })),
+      },
+    });
+
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    await transaction.rollback();
+    console.error("Checkout failed:", err);
+    return res.status(500).json({
+      success: false,
+      message: err.message || "Đặt hàng thất bại, vui lòng thử lại",
+    });
   }
 };
-
-export default { checkout };

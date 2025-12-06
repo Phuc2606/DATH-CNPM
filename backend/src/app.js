@@ -10,7 +10,9 @@ import { fileURLToPath } from "url";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import inventoryRoutes from "./routes/inventoryRoutes.js";
-
+import checkoutRoutes from "./routes/checkoutRoutes.js"
+import voucherRoutes from './routes/voucherRoutes.js';
+import orderRoutes from "./routes/orderRoutes.js";
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,7 +37,9 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/admin", inventoryRoutes);
-
+app.use("/api", checkoutRoutes);
+app.use('/api/vouchers', voucherRoutes);
+app.use("/api/orders", orderRoutes);
 // Health check
 app.get("/api/health", (req, res) => {
   res.status(200).json({ message: "Server is running" });

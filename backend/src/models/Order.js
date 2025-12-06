@@ -15,36 +15,97 @@ class Order {
 
     if (this.OrderID) {
       request.input("id", sql.Int, this.OrderID);
-      await request.query(
-        "UPDATE [Order] SET Status=@status, TotalAmount=@total WHERE OrderID=@id"
-      );
+      await request.query(`
+        UPDATE [Order] 
+        SET Status=@status, TotalAmount=@total 
+        WHERE OrderID=@id
+      `);
       return this;
     } else {
       request.input("cid", sql.Int, this.CustomerID);
-      const res = await request.query(
-        "INSERT INTO [Order] (CustomerID, TotalAmount, Status) VALUES (@cid, @total, @status); SELECT SCOPE_IDENTITY() as id;"
-      );
+      const res = await request.query(`
+        INSERT INTO [Order] (CustomerID, TotalAmount, Status)
+        VALUES (@cid, @total, @status);
+        SELECT SCOPE_IDENTITY() as id;
+      `);
       this.OrderID = res.recordset[0].id;
       return this;
     }
   }
 
-  static async addItem(orderId, { ProductID, Quantity, Price }) {
-    const request = new sql.Request();
-    request.input("oid", sql.Int, orderId);
-    request.input("pid", sql.Int, ProductID);
-    request.input("qty", sql.Int, Quantity);
-    request.input("price", sql.Decimal(18, 2), Price); // Giá tại thời điểm mua
+  // CREATE ORDER (VoucherList)
+  static async create(orderData, { transaction } = {}) {
+    const request = transaction ? transaction.request() : new sql.Request();
 
-    await request.query(
-      "INSERT INTO OrderItem (OrderID, ProductID, Quantity, UnitPrice) VALUES (@oid, @pid, @qty, @price)"
-    );
+    const result = await request
+      .input("customerId", sql.Int, orderData.CustomerID)
+      .input("subtotal", sql.Decimal(18, 2), orderData.Subtotal)
+      .input("discount", sql.Decimal(18, 2), orderData.DiscountAmount || 0)
+      .input("shippingFee", sql.Decimal(18, 2), orderData.ShippingFee || 0)
+      .input("total", sql.Decimal(18, 2), orderData.TotalAmount)
+      .input("paymentMethod", sql.NVarChar, orderData.PaymentMethod)
+      .input("paymentStatus", sql.NVarChar, orderData.PaymentStatus || "Pending")
+      .input("status", sql.NVarChar, orderData.Status || "Pending")
+      .input("address", sql.NVarChar, orderData.RecipientInfo)
+      .input("note", sql.NVarChar, orderData.Note || null)
+      .input(
+        "voucherList",
+        sql.NVarChar,
+        (() => {
+          let list = orderData.VoucherList;
+          if (typeof list === "string") {
+            try {
+              list = JSON.parse(list);
+            } catch (e) {
+            }
+          }
+          if (Array.isArray(list)) {
+            return list.map(v => v.code).join(",");
+          }
+
+          return list || null;
+        })()
+      )
+      .query(`
+        INSERT INTO [Order] 
+          (CustomerID, Subtotal, DiscountAmount, ShippingFee, TotalAmount,
+           PaymentMethod, PaymentStatus, Status, RecipientInfo, Note, VoucherList)
+        OUTPUT INSERTED.OrderID, INSERTED.OrderDate
+        VALUES 
+          (@customerId, @subtotal, @discount, @shippingFee, @total,
+           @paymentMethod, @paymentStatus, @status, @address, @note, @voucherList)
+      `);
+
+    const row = result.recordset[0];
+    return {
+      OrderID: row.OrderID,
+      OrderDate: row.OrderDate
+    };
+  }
+
+  static async addOrderItem(orderId, itemData, { transaction } = {}) {
+    const request = transaction ? transaction.request() : new sql.Request();
+
+    await request
+      .input("orderId", sql.Int, orderId)
+      .input("productId", sql.Int, itemData.ProductID)
+      .input("quantity", sql.Int, itemData.Quantity)
+      .input("unitPrice", sql.Decimal(18, 2), itemData.UnitPrice)
+      .input("finalPrice", sql.Decimal(18, 2), itemData.FinalPrice || itemData.UnitPrice)
+      .query(`
+        INSERT INTO OrderItem (OrderID, ProductID, Quantity, UnitPrice, FinalPrice)
+        VALUES (@orderId, @productId, @quantity, @unitPrice, @finalPrice)
+      `);
   }
 
   static async findById(id) {
     const request = new sql.Request();
     request.input("id", sql.Int, id);
-    const res = await request.query("SELECT * FROM [Order] WHERE OrderID=@id");
+    const res = await request.query(`
+      SELECT * FROM [Order] 
+      WHERE OrderID=@id
+    `);
+
     return res.recordset[0] || null;
   }
 }
