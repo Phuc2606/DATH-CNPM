@@ -1,50 +1,80 @@
-import CartModel from "../models/CartModel.js";
+import Cart from "../models/Cart.js";
 
+//LẤY GIỎ HÀNG
 export const getCart = async (req, res) => {
   try {
-    const { id } = req.params; // cart id
-    const cart = await CartModel.findById(id);
-    if (!cart) return res.status(404).json({ message: "Cart not found" });
-    const items = await CartModel.getItems(id);
-    res.json({ ...cart, items });
+    const data = await Cart.getFullCart(req.user.id);
+    res.json({ success: true, data });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
-export const createCart = async (req, res) => {
+// THÊM SẢN PHẨM VÀO GIỎ HÀNG
+export const addItemToCart = async (req, res) => {
   try {
-    const c = new CartModel(req.body);
-    const saved = await c.save();
-    res.status(201).json(saved);
+    const customerId = req.user.id;
+    const { productId, quantity = 1 } = req.body;
+
+    if (!productId || quantity < 1) {
+      return res.status(400).json({ success: false, message: "Invalid product or quantity" });
+    }
+
+    const cart = await Cart.getOrCreateCart(customerId);
+    await Cart.addItem(cart.CartID, { ProductID: productId, Quantity: quantity });
+
+    res.status(201).json({ success: true, message: "Đã thêm vào giỏ hàng" });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("addItem error:", err);
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
-export const addItem = async (req, res) => {
+// XÓA SẢN PHẨM KHỎI GIỎ HÀNG
+export const removeItemFromCart = async (req, res) => {
   try {
-    const { cartId } = req.params;
-    const item = req.body; // { ProductID, Quantity }
-    const inserted = await CartModel.addItem(cartId, item);
-    res.status(201).json(inserted);
+    const { productId } = req.params;
+    const cart = await Cart.getOrCreateCart(req.user.id);
+    await Cart.removeItem(cart.CartID, productId);
+
+    res.json({ success: true, message: "Đã xóa sản phẩm" });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("removeItem error:", err);
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
-export const removeItem = async (req, res) => {
+// CẬP NHẬT SỐ LƯỢNG SẢN PHẨM TRONG GIỎ HÀNG
+export const updateItemQuantity = async (req, res) => {
   try {
-    const { itemId } = req.params;
-    const pool = await (await import("../config/database.js")).sql.connect();
-    await pool
-      .request()
-      .input("id", (await import("../config/database.js")).sql.Int, itemId)
-      .query("DELETE FROM CartItem WHERE CartItemID=@id");
-    res.json({ message: "Removed" });
+    const { productId } = req.params;
+    const { quantity } = req.body;
+
+    if (quantity === undefined || quantity < 0) {
+      return res.status(400).json({ success: false, message: "Số lượng không hợp lệ" });
+    }
+
+    const cart = await Cart.getOrCreateCart(req.user.id);
+    await Cart.updateItemQuantity(cart.CartID, productId, quantity); 
+
+    res.json({ success: true, message: "Cập nhật thành công" });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("updateQuantity error:", err);
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
-export default { getCart, createCart, addItem, removeItem };
+// XÓA TOÀN BỘ GIỎ HÀNG
+export const clearCart = async (req, res) => {
+  try {
+    const cart = await Cart.getOrCreateCart(req.user.id);
+    await Cart.clearCart(cart.CartID);
+
+    res.json({ success: true, message: "Đã làm trống giỏ hàng" });
+  } catch (err) {
+    console.error("clearCart error:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export default { getCart, addItemToCart, removeItemFromCart, updateItemQuantity, clearCart };

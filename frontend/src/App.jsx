@@ -25,6 +25,9 @@ import InventoryManager from "./pages/admin/InventoryManager";
 import SupplierManager from "./pages/admin/SupplierManager";
 
 import { ToastContainer } from "react-toastify";
+import Cart from "./pages/Cart/Cart";
+import Profile from "./pages/Profile/Profile";
+
 const App = () => {
   return (
     <div className="App">
@@ -35,10 +38,11 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/stores" element={<StoreLocator />} />
 
-          <Route element={<ProtectedRoute allowedRoles={["Customer"]} />}>
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/checkout/success" element={<CheckoutSuccess />} />
-          </Route>
+        <Route element={<ProtectedRoute allowedRoles={["Customer"]} />}>
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/checkout-success/:orderId" element={<CheckoutSuccess />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>

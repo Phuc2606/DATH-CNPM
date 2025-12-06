@@ -1,238 +1,239 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Checkout.css';
-// products import not needed in this version
 import useCart from '../../context/useCart';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { FaTruck, FaCreditCard, FaWallet, FaCheckCircle, FaTimes, FaTag } from 'react-icons/fa';
 
 const Checkout = () => {
-  const [form, setForm] = useState({
-    name: '', email: '', phone: '', address: '', city: '', postal: '', country: ''
-  });
+  const {
+    cart,
+    summary,
+    appliedVouchers,
+    setAppliedVouchers,
+    clearCart
+  } = useCart();
 
-  const { cart, updateQty, removeItem, clearCart, total: cartTotal } = useCart();
   const navigate = useNavigate();
+  const items = cart?.items || [];
 
-  const subtotal = cartTotal || 0;
+  const { subtotal, shippingFee, discount, total } = summary;
 
-  function fmt(v) {
-    return v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + '₫';
-  }
+  const [form, setForm] = useState({
+    recipientName: '',
+    phone: '',
+    shippingAddress: '',
+    note: ''
+  });
+  const [profile, setProfile] = useState(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
 
-  // payment/shipping/promo state
-  const [paymentMethod, setPaymentMethod] = useState('cod');
-  const [shippingRegion, setShippingRegion] = useState('hn');
-  const [shippingMethod, setShippingMethod] = useState('standard');
-  const [promo, setPromo] = useState('');
-  const [discountPct, setDiscountPct] = useState(0);
-  const [processing, setProcessing] = useState(false);
+  const [voucherInput, setVoucherInput] = useState('');
+  const [voucherMessage, setVoucherMessage] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('COD');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  function shippingCostFor(region, method) {
-    // simple matrix
-    const base = region === 'hn' ? 15000 : region === 'hcm' ? 18000 : 35000;
-    return method === 'express' ? base + 30000 : base;
-  }
+  const fmt = (v) => (Number(v) || 0).toLocaleString('vi-VN') + '₫';
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setLoadingProfile(false);
+          return;
+        }
 
-  // if cart is empty we don't charge shipping — keep totals zero and avoid confusing the user
-  const shippingCost = cart.length ? shippingCostFor(shippingRegion, shippingMethod) : 0;
+        const res = await axios.get('http://localhost:5000/api/users/profile', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        console.log("PROFILE TỪ SERVER:", res.data);
+        const user = res.data;
+        setProfile(user);
 
-  function applyPromo() {
-    const code = promo.trim().toUpperCase();
-    if (code === 'SALE10') { setDiscountPct(10); return true; }
-    if (code === 'FREESHIP') { setDiscountPct(0); return true; }
-    setDiscountPct(0); return false;
-  }
+        setForm(prev => ({
+          recipientName: prev.recipientName || user.Name || '',
+          phone: prev.phone || user.PhoneNumber || '',
+          shippingAddress: prev.shippingAddress || user.Address || '',
+          note: prev.note || ''
+        }));
 
-  // Luhn algorithm for card number validation
-  function isValidCardNumber(num) {
-    const digits = num.replace(/\D+/g,'');
-    let sum = 0; let alt = false;
-    for (let i = digits.length - 1; i >= 0; i--) {
-      let n = parseInt(digits[i], 10);
-      if (alt) { n *= 2; if (n > 9) n -= 9; }
-      sum += n; alt = !alt;
+      } catch (err) {
+        console.log("Không lấy được profile (có thể chưa đăng nhập)");
+      } finally {
+        setLoadingProfile(false);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  const applyVoucher = async () => {
+    const code = voucherInput.trim().toUpperCase();
+    if (!code) return;
+
+    if (appliedVouchers.some(v => v.code === code)) {
+      setVoucherMessage('Mã này đã được áp dụng!');
+      return;
     }
-    return digits.length >= 12 && sum % 10 === 0;
-  }
 
-  // card input local state (not stored/persisted)
-  const [card, setCard] = useState({number:'', expiry:'', cvc:'', name:''});
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get(`http://localhost:5000/api/vouchers/${code}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-  function handleSubmit(e) {
+      if (res.data.success) {
+        const v = res.data.data;
+        setAppliedVouchers(prev => [...prev, { code, ...v }]);
+        setVoucherInput('');
+        setVoucherMessage('');
+      }
+    } catch (err) {
+      setVoucherMessage(err.response?.data?.message || 'Mã không hợp lệ');
+    }
+  };
+
+  const removeVoucher = (code) => {
+    setAppliedVouchers(prev => prev.filter(v => v.code !== code));
+    setVoucherMessage('');
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.address || !form.phone) {
-      alert('Vui lòng điền đầy đủ thông tin nhận hàng');
+    if (!form.recipientName || !form.phone || !form.shippingAddress) {
+      setError('Vui lòng nhập đầy đủ thông tin');
       return;
     }
 
-    if (!applyPromo() && promo.trim() !== '') {
-      alert('Mã giảm giá không hợp lệ');
-      return;
-    }
+    setLoading(true);
+    setError('');
 
-    if (paymentMethod === 'card') {
-      if (!isValidCardNumber(card.number)) { alert('Số thẻ không hợp lệ'); return; }
-      if (!card.expiry || !/^(0[1-9]|1[0-2])\/(\d{2})$/.test(card.expiry)) { alert('Hạn thẻ không hợp lệ (MM/YY)'); return; }
-      if (!/^[0-9]{3,4}$/.test(card.cvc)) { alert('CVC không hợp lệ'); return; }
-    }
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.post(
+        'http://localhost:5000/api/checkout',
+        {
+          recipientName: form.recipientName.trim(),
+          phone: form.phone.trim(),
+          shippingAddress: form.shippingAddress.trim(),
+          note: form.note?.trim(),
+          paymentMethod,
+          voucherCode: appliedVouchers.map(v => v.code).join(',') || undefined
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
 
-    setProcessing(true);
-    setTimeout(() => {
-      setProcessing(false);
-      const orderId = 'ORD' + Date.now();
+      const orderId = res?.data?.data?.orderId;
+
+      if (!orderId) {
+        console.error("ORDER ID IS UNDEFINED!!! RES:", res);
+        return;
+      }
+
       clearCart();
-      navigate('/checkout/success', { state: { orderId, total: subtotal } });
-    }, 800 + Math.random() * 1000);
-  }
 
+      navigate(`/checkout-success/${orderId}`, { replace: true });
+
+    } catch (err) {
+      setError(err.response?.data?.message || 'Đặt hàng thất bại');
+    } finally {
+      setLoading(false);
+    }
+
+  };
+  useEffect(() => {
+    return () => {
+      setAppliedVouchers([]);
+    };
+  }, []);
+  // Loading profile
+  if (loadingProfile) {
+    return <div className="checkout-root"><div className="container">Đang tải thông tin...</div></div>;
+  }
   return (
     <div className="checkout-root">
       <div className="container">
         <h1 className="checkout-title">Thanh toán</h1>
         <div className="checkout-grid">
+
           <form className="checkout-form" onSubmit={handleSubmit}>
             <h2>Thông tin nhận hàng</h2>
+            {error && <div className="error-message">{error}</div>}
 
-            <div className="form-row">
-              <div className="field">
-                <label className="field-label">Họ tên</label>
-                <input value={form.name} onChange={e => setForm({...form, name: e.target.value})} required/>
-              </div>
-              <div className="field">
-                <label className="field-label">Email</label>
-                <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} required/>
-              </div>
-            </div>
+            <input required placeholder="Họ và tên" value={form.recipientName}
+              onChange={e => setForm({ ...form, recipientName: e.target.value })} />
 
-            <div className="form-row">
-              <div className="field">
-                <label className="field-label">Số điện thoại</label>
-                <input value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} required/>
-              </div>
-              <div className="field">
-                <label className="field-label">Quốc gia</label>
-                <input value={form.country} onChange={e => setForm({...form, country: e.target.value})} />
-              </div>
-            </div>
+            <input required type="tel" placeholder="Số điện thoại" value={form.phone}
+              onChange={e => setForm({ ...form, phone: e.target.value })} />
 
+            <input required placeholder="Địa chỉ giao hàng (số nhà, đường, phường...)" value={form.shippingAddress}
+              onChange={e => setForm({ ...form, shippingAddress: e.target.value })} />
 
-            <div className="form-row">
-              <div className="field">
-                <label className="field-label">Thành phố</label>
-                <input value={form.city} onChange={e => setForm({...form, city: e.target.value})} required/>
-              </div>
-              <div className="field">
-                <label className="field-label">Mã bưu điện</label>
-                <input value={form.postal} onChange={e => setForm({...form, postal: e.target.value})} />
-              </div>
-            </div>
+            <textarea rows={3} placeholder="Ghi chú (giao buổi chiều, để trước cửa...)" value={form.note}
+              onChange={e => setForm({ ...form, note: e.target.value })} />
 
-            <div className="form-row">
-                <div className="field field--grow">
-                  <label className="field-label">Địa chỉ</label>
-                  <input value={form.address} onChange={e => setForm({...form, address: e.target.value})} required/>
+            <h2><FaTag /> Mã giảm giá</h2>
+            <div className="voucher-section">
+              <div className="voucher-input">
+                <input placeholder="Nhập mã giảm giá" value={voucherInput} onChange={e => setVoucherInput(e.target.value)} />
+                <button type="button" onClick={applyVoucher} className="btn-apply">Áp dụng</button>
+              </div>
+
+              {appliedVouchers.map(v => (
+                <div key={v.code} className="voucher-applied">
+                  <FaCheckCircle /> <strong>{v.code}</strong> – Giảm {fmt(v.type === 'PERCENT' ? Math.round(subtotal * v.value / 100) : v.value)}
+                  <button type="button" onClick={() => removeVoucher(v.code)}><FaTimes /></button>
                 </div>
-            </div>
-           
+              ))}
 
-            <h2>Phương thức giao hàng</h2>
-            <div className="shipping-options">
-              <div className="field">
-                <label className="field-label">Vùng</label>
-                <select value={shippingRegion} onChange={e=>setShippingRegion(e.target.value)}>
-                  <option value="hn">Hà Nội</option>
-                  <option value="hcm">Hồ Chí Minh</option>
-                  <option value="other">Toàn quốc</option>
-                </select>
-              </div>
-              <div className="field field-inline">
-                <label className="field-label">Phương thức giao hàng</label>
-                <div className="field-controls">
-                  <label><input type="radio" name="ship" value="standard" checked={shippingMethod==='standard'} onChange={() => setShippingMethod('standard')} /> Giao tiêu chuẩn</label>
-                  <label><input type="radio" name="ship" value="express" checked={shippingMethod==='express'} onChange={() => setShippingMethod('express')} /> Giao hỏa tốc</label>
-                </div>
-              </div>
+              {voucherMessage && <div className="voucher-error">{voucherMessage}</div>}
             </div>
 
             <h2>Phương thức thanh toán</h2>
             <div className="payment-options">
-              <div className="field field-inline">
-                <label className="field-label">Phương thức</label>
-                <div className="field-controls">
-                  <label><input type="radio" name="pay" value="cod" checked={paymentMethod==='cod'} onChange={() => setPaymentMethod('cod')} /> Thanh toán khi nhận hàng (COD)</label>
-                  <label><input type="radio" name="pay" value="card" checked={paymentMethod==='card'} onChange={() => setPaymentMethod('card')} /> Thanh toán bằng thẻ</label>
-                  <label><input type="radio" name="pay" value="ewallet" checked={paymentMethod==='ewallet'} onChange={() => setPaymentMethod('ewallet')} /> Ví điện tử</label>
-                </div>
-              </div>
+              <label className={paymentMethod === 'COD' ? 'active' : ''}>
+                <input type="radio" name="pay" value="COD" checked={paymentMethod === 'COD'} onChange={e => setPaymentMethod(e.target.value)} />
+                <FaTruck /> Thanh toán khi nhận hàng (COD)
+              </label>
+              <label className={paymentMethod === 'MOMO' ? 'active' : ''}>
+                <input type="radio" name="pay" value="MOMO" checked={paymentMethod === 'MOMO'} onChange={e => setPaymentMethod(e.target.value)} />
+                <FaWallet /> Ví MOMO
+              </label>
+              <label className={paymentMethod === 'CreditCard' ? 'active' : ''}>
+                <input type="radio" name="pay" value="CREDIT" checked={paymentMethod === 'CREDIT'} onChange={e => setPaymentMethod(e.target.value)} />
+                <FaWallet /> Thẻ tín dụng
+              </label>
             </div>
 
-            {paymentMethod === 'card' && (
-              <div className="card-form">
-                <div className="field">
-                  <label className="field-label">Số thẻ</label>
-                  <input placeholder="4242 4242 4242 4242" value={card.number} onChange={e=>setCard({...card, number:e.target.value})} />
-                </div>
-                <div className="form-row">
-                  <div className="field">
-                    <label className="field-label">Tháng/Năm</label>
-                    <div style={{gap:8}}>
-                    <input placeholder="MM/YY" value={card.expiry} onChange={e=>setCard({...card, expiry:e.target.value})} />
-                  </div>
-                  </div>
-                </div>
-                <div className="form-row">
-                     <div className="field">
-                    <label className="field-label">CVC</label>
-                    <div style={{gap:8}}>
-                    <input placeholder="CVC" value={card.cvc} onChange={e=>setCard({...card, cvc:e.target.value})} />
-                  </div>
-                  </div>
-                </div>
-
-                <div className="field">
-                  <label className="field-label">Tên chủ thẻ</label>
-                  <input placeholder="Nguyen Van A" value={card.name} onChange={e=>setCard({...card, name:e.target.value})} />
-                </div>
-              </div>
-            )}
-
-            <div className="form-row">
-              <div className="field">
-                <label className="field-label">Mã giảm giá</label>
-                <div style={{display:'flex',gap:8}}>
-                  <input placeholder="Nhập mã giảm giá" value={promo} onChange={e => setPromo(e.target.value)} />
-                  <button type="button" className="btn" onClick={applyPromo}>Áp dụng</button>
-                </div>
-              </div>
-            </div>
-
-            <div className="form-actions">
-              <button className="btn btn--primary" type="submit" disabled={processing || cart.length === 0}>{processing ? 'Đang xử lý...' : 'Xác nhận & Thanh toán'}</button>
-            </div>
+            <button className="btn btn--primary" type="submit" disabled={loading}>
+              {loading ? 'Đang xử lý...' : `Thanh toán ${fmt(total)}`}
+            </button>
           </form>
 
           <aside className="checkout-summary">
-            <h2>Đơn hàng</h2>
-            <ul className="summary-list">
-              {cart.length === 0 && <li>Giỏ hàng trống</li>}
-              {cart.map(item => (
-                <li key={item.id} className="summary-item">
-                  <img src={item.img} alt="" onError={e => e.target.src = '/assets/placeholder.png'} />
-                  <div style={{flex:1}}>
-                    <div className="s-name">{item.name}</div>
-                    <div className="s-meta">{item.brand} • {item.price}</div>
+            <h2>Đơn hàng ({items.length} sản phẩm)</h2>
+            <div className="summary-items">
+              {items.map(item => (
+                <div key={item.productId} className="summary-item">
+                  <img src={item.image} alt={item.name} />
+                  <div className="item-info">
+                    <div className="item-name">{item.name}</div>
+                    <div className="item-quantity">x{item.quantity}</div>
                   </div>
-                  <div style={{display:'flex',gap:8,alignItems:'center'}}>
-                    <input type="number" min={1} value={item.qty} onChange={e=>updateQty(item.id, Number(e.target.value)||1)} style={{width:64}} />
-                    <button className="btn" onClick={()=>removeItem(item.id)}>Xóa</button>
-                  </div>
-                </li>
+                  <div className="item-total">{fmt(item.price * item.quantity)}</div>
+                </div>
               ))}
-            </ul>
+            </div>
 
             <div className="summary-row"><span>Tạm tính</span><strong>{fmt(subtotal)}</strong></div>
-            <div className="summary-row"><span>Giảm ({discountPct}%)</span><strong>-{fmt(Math.round((subtotal*discountPct)/100))}</strong></div>
-            <div className="summary-row"><span>Phí vận chuyển</span><strong>{fmt(shippingCost)}</strong></div>
-            <div className="summary-total"><span>Tổng</span><strong>{fmt(subtotal - Math.round((subtotal*discountPct)/100) + shippingCost)}</strong></div>
+            {discount > 0 && <div className="summary-row discount"><span>Giảm giá</span><strong>-{fmt(discount)}</strong></div>}
+            <div className="summary-row"><span>Phí vận chuyển</span><strong>{shippingFee === 0 ? 'Miễn phí' : fmt(shippingFee)}</strong></div>
+            <div className="summary-total">
+              <span>Tổng cộng</span>
+              <strong style={{ fontSize: '1.8rem', color: '#0ea5e9' }}>{fmt(total)}</strong>
+            </div>
           </aside>
         </div>
       </div>

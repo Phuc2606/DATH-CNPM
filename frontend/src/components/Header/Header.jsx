@@ -11,9 +11,9 @@ import { DiAptana } from "react-icons/di";
 const Header = () => {
   const navigate = useNavigate();
   const { cart, lastAdded } = useCart();
-  const itemCount = cart.reduce((s, p) => s + (p.qty || 0), 0);
   const [showToast, setShowToast] = useState(false);
   const [user, setUser] = useState(null);
+  const itemCount = cart?.items?.length || 0;
 
   const [hidden, setHidden] = useState(false);
   const [lastScroll, setLastScroll] = useState(0);
@@ -81,7 +81,7 @@ const Header = () => {
               <button
                 className="cart-btn"
                 aria-label="Giỏ hàng"
-                onClick={() => navigate("/checkout")}
+                onClick={() => navigate("/cart")}
               >
                 <AiOutlineShoppingCart />
                 {itemCount > 0 && (

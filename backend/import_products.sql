@@ -117,6 +117,14 @@ INSERT INTO Product (ProductID, Name, Brand, Category, Price, Stock, Description
 (79, N'Ayn Odin 2 Pro', 'Ayn', 'cat-8', 9990000, 35, N'Máy chơi game Android mạnh', '/uploads/Gaming Console/Ayn-Odin-2-Pro.jpg'),
 (80, N'Logitech G Cloud', 'Logitech', 'cat-8', 8990000, 30, N'Chuyên cloud gaming', '/uploads/Gaming Console/Logitech-G-Cloud.jpg');
 
+-- VOUCHERS
+INSERT INTO Voucher (Type, Discount, ApplicableCondition, AvailableDay, ExpiredDay) VALUES
+  ('SALE10',    10,     'PERCENT',  '2024-01-01', '2026-12-31'),
+  ('SALE20',    20,     'PERCENT',  '2024-01-01', '2026-12-31'),
+  ('GIAM50K',   50000,  'FIXED',    '2024-01-01', '2026-12-31'),
+  ('GIAM100K', 100000, 'FIXED',    '2024-01-01', '2026-12-31'),
+  ('FREESHIP',  0,      'FREESHIP', '2024-01-01', '2026-12-31'),
+  ('WELCOME',   30000,  'FIXED',    '2024-01-01', '2026-12-31');
 SET IDENTITY_INSERT Product OFF;
 
 

@@ -11,6 +11,9 @@ import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import categoriesRoutes from "./routes/categoriesRoutes.js";
 import inventoryRoutes from "./routes/inventoryRoutes.js";
+import checkoutRoutes from "./routes/checkoutRoutes.js"
+import voucherRoutes from './routes/voucherRoutes.js';
+import orderRoutes from "./routes/orderRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 
 dotenv.config();
@@ -36,6 +39,10 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/admin", inventoryRoutes);
+app.use("/api", checkoutRoutes);
+app.use('/api/vouchers', voucherRoutes);
+app.use("/api/orders", orderRoutes);
 app.use("/api/inventory", inventoryRoutes);
 app.use("/api/categories", categoriesRoutes);
 app.use("/api/products", productRoutes);

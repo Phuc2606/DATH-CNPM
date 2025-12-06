@@ -107,6 +107,37 @@ class Product {
     request.input("id", sql.Int, id);
     await request.query("DELETE FROM Product WHERE ProductID = @id");
   }
+  static async updateStockSafe(productId, deductQty, { transaction } = {}) {
+    const request = transaction ? transaction.request() : new sql.Request();
+
+    const result = await request
+      .input("pid", sql.Int, productId)
+      .input("qty", sql.Int, deductQty)
+      .query(`
+      UPDATE Product 
+      SET Stock = Stock - @qty 
+      WHERE ProductID = @pid AND Stock >= @qty;
+      SELECT @@ROWCOUNT as affected;
+    `);
+    const affected = result.recordset?.[0]?.affected ?? result.rowsAffected[0];
+    return affected > 0;
+  }
+  static async deductStockSafe(productId, quantity, { transaction } = {}) {
+    const request = transaction ? transaction.request() : new sql.Request();
+
+    const result = await request
+      .input("pid", sql.Int, productId)
+      .input("qty", sql.Int, quantity)
+      .query(`
+        UPDATE Product 
+        SET Stock = Stock - @qty 
+        WHERE ProductID = @pid AND Stock >= @qty;
+        SELECT @@ROWCOUNT as affected;
+      `);
+
+    const affected = result.recordset?.[0]?.affected ?? result.rowsAffected[0];
+    return affected > 0; // true = giảm thành công, false = hết hàng
+  }
 }
 
 export default Product;

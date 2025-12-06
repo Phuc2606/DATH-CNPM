@@ -49,15 +49,9 @@ CREATE TABLE Voucher (
     Type NVARCHAR(100),
     Discount DECIMAL(18,2),
     ApplicableCondition NVARCHAR(200),
+    TotalQuantity INT NOT NULL DEFAULT 0,
     AvailableDay DATE,
     ExpiredDay DATE
-);
-CREATE TABLE ProductVoucher (
-    ProductID INT NOT NULL,
-    VoucherID INT NOT NULL,
-    CONSTRAINT PK_ProductVoucher PRIMARY KEY (ProductID, VoucherID),
-    CONSTRAINT FK_PV_Product FOREIGN KEY (ProductID) REFERENCES Product(ProductID),
-    CONSTRAINT FK_PV_Voucher FOREIGN KEY (VoucherID) REFERENCES Voucher(VoucherID)
 );
 CREATE TABLE Customer (
     CustomerID INT IDENTITY PRIMARY KEY,
@@ -85,15 +79,22 @@ CREATE TABLE CartItem (
     CONSTRAINT FK_CI_Product FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
 );
 CREATE TABLE [Order] (
-    OrderID INT IDENTITY PRIMARY KEY,
+    OrderID INT IDENTITY(1,1) PRIMARY KEY,
     CustomerID INT NOT NULL,
     OrderDate DATETIME DEFAULT GETDATE(),
-    Description NVARCHAR(500),
-    DeliveryLocation NVARCHAR(200),
-    Weight DECIMAL(10,2),
-    Status NVARCHAR(50),
-    OrderType CHAR(1) NULL,
-    CONSTRAINT FK_Order_Customer FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID)
+    Subtotal DECIMAL(18,2) NOT NULL,           -- Tổng tiền hàng
+    DiscountAmount DECIMAL(18,2) DEFAULT 0,    -- Tiền giảm (voucher/event)
+    ShippingFee DECIMAL(18,2) DEFAULT 0,       -- Phí ship
+    TotalAmount DECIMAL(18,2) NOT NULL,        -- Thành tiền cuối cùng
+    PaymentMethod NVARCHAR(50) NOT NULL,       -- COD, MOMO, VNPAY, BANK...
+    PaymentStatus NVARCHAR(50) DEFAULT 'Pending', -- Pending, Paid, Failed, Refunded
+    Status NVARCHAR(50) DEFAULT 'Pending',     -- Pending, Processing, Shipped, Delivered, Cancelled
+    RecipientInfo NVARCHAR(500) NOT NULL,    -- Thông tin giao hàng (cũ: DeliveryAddress, có thể đổi tên bằng lệnh EXEC sp_rename 'Order.DeliveryAddress', 'RecipientInfo', 'COLUMN';)
+    Note NVARCHAR(1000), 
+    VoucherList NVARCHAR(MAX) NULL,
+
+    CONSTRAINT FK_Order_Customer FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
+    CONSTRAINT FK_Order_Voucher FOREIGN KEY (VoucherID) REFERENCES Voucher(VoucherID)
 );
 CREATE TABLE Store (
     BranchID INT NOT NULL,
@@ -106,10 +107,11 @@ CREATE TABLE Store (
 CREATE TABLE OrderItem (
     OrderID INT NOT NULL,
     ProductID INT NOT NULL,
-    Quantity INT CHECK (Quantity > 0),
-    UnitPrice DECIMAL(18,2),
+    Quantity INT NOT NULL CHECK (Quantity > 0),
+    UnitPrice DECIMAL(18,2) NOT NULL,     -- Giá gốc lúc đặt
+    FinalPrice DECIMAL(18,2) NOT NULL,
     CONSTRAINT PK_OrderItem PRIMARY KEY (OrderID, ProductID),
-    CONSTRAINT FK_OI_Order FOREIGN KEY (OrderID) REFERENCES [Order](OrderID),
+    CONSTRAINT FK_OI_Order FOREIGN KEY (OrderID) REFERENCES [Order](OrderID) ON DELETE CASCADE,
     CONSTRAINT FK_OI_Product FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
 );
 CREATE TABLE Payment (
@@ -152,5 +154,16 @@ CREATE TABLE Review (
     ReviewTime DATETIME DEFAULT GETDATE(),
     CONSTRAINT FK_Review_Customer FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
     CONSTRAINT FK_Review_Product FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
+);
+CREATE TABLE VoucherUsage (
+    VoucherUsageID INT IDENTITY(1,1) PRIMARY KEY,
+    VoucherID INT NOT NULL,
+    CustomerID INT NOT NULL,
+    OrderID INT NULL,
+    UsedAt DATETIME DEFAULT GETDATE(),
+
+    CONSTRAINT FK_VU_Voucher FOREIGN KEY (VoucherID) REFERENCES Voucher(VoucherID),
+    CONSTRAINT FK_VU_Customer FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
+    CONSTRAINT FK_VU_Order FOREIGN KEY (OrderID) REFERENCES [Order](OrderID)
 );
 
