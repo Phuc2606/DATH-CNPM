@@ -9,8 +9,8 @@
   --color-muted: #64748b;
   --color-border: #e2e8f0;
   --color-border-light: #e0f2fe;
-  --shadow-light: 0 4px 20px rgba(0,0,0,0.06);
-  --shadow-medium: 0 10px 30px rgba(0,0,0,0.1);
+  --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.06);
+  --shadow-medium: 0 10px 30px rgba(0, 0, 0, 0.1);
   --radius-lg: 20px;
   --radius-md: 14px;
   --radius-sm: 12px;
@@ -20,7 +20,7 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #cffafe 100%);
   padding: 3rem 1rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .checkout-root .container {
@@ -65,13 +65,17 @@
 }
 
 .checkout-form h2::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -3px;
   left: 0;
   width: 70px;
   height: 4px;
-  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-dark));
+  background: linear-gradient(
+    90deg,
+    var(--color-primary),
+    var(--color-primary-dark)
+  );
   border-radius: 2px;
 }
 
@@ -336,6 +340,32 @@
   }
 }
 
+@media (max-width: 768px) {
+  .checkout-root {
+    padding: 1.5rem 0.5rem;
+  }
+
+  .checkout-title {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .checkout-form,
+  .checkout-summary {
+    padding: 1.5rem;
+  }
+
+  .payment-options label {
+    padding: 0.8rem;
+    font-size: 0.95rem;
+  }
+
+  .btn--primary {
+    font-size: 1.1rem;
+    padding: 1rem;
+  }
+}
+
 @media (max-width: 640px) {
   .checkout-form,
   .checkout-summary {
@@ -349,6 +379,30 @@
     padding: 1rem;
   }
 }
+
+@media (max-width: 600px) {
+  .success-wrapper {
+    padding: 1rem;
+  }
+
+  .success-card {
+    padding: 1.5rem;
+  }
+
+  .success-title {
+    font-size: 1.6rem;
+  }
+
+  .info-box {
+    padding: 1rem;
+  }
+
+  .item-box {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
 /* ================================
    CHECKOUT SUCCESS PAGE
    ================================ */
@@ -360,11 +414,12 @@
 }
 
 .success-card {
-  width: 900px;
+  width: 100%; /* Đổi từ 900px thành 100% */
+  max-width: 900px; /* Thêm max-width để không quá to trên PC */
   background: white;
-  padding: 3rem;
+  padding: 2rem; /* Giảm padding một chút */
   border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
 }
 
 .success-title {
@@ -451,6 +506,5 @@
 
 .back-home:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 25px rgba(59,130,246,0.3);
+  box-shadow: 0 12px 25px rgba(59, 130, 246, 0.3);
 }
-

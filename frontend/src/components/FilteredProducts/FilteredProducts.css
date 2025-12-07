@@ -62,12 +62,14 @@
 }
 
 /* increase gap between brand and other controls slightly */
-.fp-controls { gap: 1.25rem; }
+.fp-controls {
+  gap: 1.25rem;
+}
 
 .products-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .product-card {
@@ -110,4 +112,48 @@
 .product-price {
   font-weight: 700;
   color: var(--color-dark);
+}
+
+@media (max-width: 1024px) {
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+}
+
+/* 2. Tablet nhỏ & Mobile ngang: 2 cột */
+@media (max-width: 768px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px; /* Giảm gap để tiết kiệm diện tích */
+  }
+
+  /* Làm đẹp thanh lọc (filter) trên mobile */
+  .fp-controls {
+    flex-direction: column; /* Xếp dọc các ô input */
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .fp-search,
+  .fp-brand,
+  .fp-sort {
+    width: 100%; /* Input full chiều ngang */
+    flex: none;
+  }
+
+  /* Ô nhập giá */
+  .fp-price-range {
+    justify-content: space-between;
+  }
+  .fp-price-range input {
+    width: 48%; /* Chia đôi 2 ô giá */
+  }
+}
+
+/* 3. Mobile nhỏ (iPhone SE, điện thoại cũ): 1 cột */
+@media (max-width: 600px) {
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
 }

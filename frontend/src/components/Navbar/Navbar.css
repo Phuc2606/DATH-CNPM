@@ -1,105 +1,175 @@
+/* Navbar.css - Responsive chuẩn */
+
 .navbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 1rem;
-  gap: 1rem;
+  /* Flex-grow để navbar chiếm hết khoảng trống giữa Logo và Cart */
+  flex-grow: 1;
+  justify-content: flex-end; /* Đẩy nội dung sang phải trên PC */
+  gap: 1.5rem;
+}
+
+/* --- PC & Tablet lớn (> 768px) --- */
+.nav-content {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+  justify-content: flex-end;
 }
 
 .nav-links {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   align-items: center;
 }
 
 .nav-item {
-  color: var(--color-bg);
-  font-weight: 600;
+  color: #e5e7eb; /* Màu chữ sáng cho nền tối */
+  font-weight: 500;
+  text-decoration: none;
+  font-size: 0.95rem;
   transition: color 0.2s;
+  white-space: nowrap;
 }
 
 .nav-item:hover {
   color: var(--color-primary);
 }
 
-.nav-actions {
+/* Thanh tìm kiếm */
+.nav-search {
+  position: relative;
   display: flex;
-  gap: 0.5rem;
   align-items: center;
 }
 
 .nav-search input {
-  padding: 0.45rem 0.75rem;
-  border-radius: 8px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  transition: box-shadow 0.2s;
-  width: 280px;
-}
-
-.nav-search{ 
-    position: relative 
-}
-
-.nav-search__icon{ 
-  position: absolute; 
-  left: 10px; 
-  top: 50%; 
-  transform: translateY(-50%); 
-  color:var(--color-muted); 
-  font-size:1.05rem; 
-  cursor:pointer 
-}
-
-.nav-search input{ 
-    padding-left:36px 
+  padding: 0.5rem 1rem 0.5rem 2.2rem;
+  border-radius: 99px; /* Bo tròn viên thuốc */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05); /* Nền trong suốt nhẹ */
+  color: white;
+  transition: all 0.2s;
+  width: 220px;
+  font-size: 0.9rem;
 }
 
 .nav-search input:focus {
   outline: none;
-  box-shadow: 0 0 0 2px var(--color-primary);
+  border-color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.1);
+  width: 260px; /* Hiệu ứng mở rộng khi focus */
 }
 
-.cart-btn {
-  color: var(--color-bg);
-  background: transparent;
+.nav-search__icon {
+  position: absolute;
+  left: 12px;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.hamburger-btn {
+  display: none; /* Ẩn trên PC */
+  background: none;
   border: none;
-  font-size: 1.3rem;
+  color: white;
   cursor: pointer;
-  transition: color 0.2s;
+  padding: 4px;
 }
 
-.cart-btn:hover {
-  color: var(--color-primary);
-}
-
-.hamburger {
+.nav-overlay {
   display: none;
-  background: transparent;
-  border: 0;
-  font-size: 1.2rem;
-  color: var(--color-border);
 }
 
-@media (max-width: 700px) {
-  .nav-links {
-    display: none;
+/* --- MOBILE & TABLET NHỎ (<= 900px) --- */
+@media (max-width: 900px) {
+  .navbar {
+    /* 1. Ngừng chiếm hết không gian để không đẩy Giỏ hàng ra xa */
+    flex-grow: 0;
+
+    /* 2. Đảo thứ tự: Đẩy Navbar (Hamburger) xuống cuối cùng (bên phải Giỏ hàng) */
+    order: 3;
+
+    /* Canh chỉnh khoảng cách */
+    gap: 0;
+    margin-left: 0.5rem;
   }
-  .nav-links.open {
-    display: flex;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 64px;
-  background: var(--color-dark);
-    padding: 1rem;
+
+  /* Đảm bảo nút hamburger hiển thị đúng */
+  .hamburger-btn {
+    display: flex; /* Đổi thành flex để căn giữa icon */
+    align-items: center;
+    justify-content: center;
+    z-index: 101;
+    color: white; /* Hoặc var(--color-surface) tùy theme */
+  }
+
+  /* Menu trượt từ bên phải ra */
+  .nav-content {
+    position: fixed;
+    top: 0;
+    right: -100%; /* Giấu sang bên phải */
+    width: 280px;
+    height: 100vh;
+    background: #1f2937; /* Màu nền tối (var(--color-dark)) */
     flex-direction: column;
-    gap: 0.5rem;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 80px 20px 20px; /* Chừa chỗ cho header */
+    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+    z-index: 100;
   }
-  .hamburger {
-    display: inline-block;
+
+  .nav-content.open {
+    right: 0; /* Trượt ra */
   }
-  .nav-search {
-    display: none;
+
+  .nav-links {
+    flex-direction: column;
+    width: 100%;
+    gap: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .nav-item {
+    width: 100%;
+    padding: 15px 0;
+    font-size: 1.1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .nav-search-wrapper {
+    width: 100%;
+    margin-bottom: 20px;
+    order: -1; /* Đưa ô tìm kiếm lên đầu menu mobile */
+  }
+
+  .nav-search input {
+    width: 100% !important; /* Full width trên mobile */
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  /* Lớp phủ đen mờ */
+  .nav-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+    z-index: 99;
+    backdrop-filter: blur(2px);
+  }
+
+  .nav-overlay.open {
+    opacity: 1;
+    visibility: visible;
   }
 }

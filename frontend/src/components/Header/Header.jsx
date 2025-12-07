@@ -54,6 +54,20 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScroll]);
 
+  const handleLogout = async () => {
+    try {
+      await logout(); // Xóa token
+      clearCart(); // 2. Xóa sạch giỏ hàng hiện tại
+    } catch (err) {
+      console.error("Logout failed", err);
+    } finally {
+      setUser(null);
+      navigate("/");
+      // Có thể reload trang để đảm bảo sạch sẽ hoàn toàn nếu muốn
+      // window.location.reload();
+    }
+  };
+
   return (
     <header
       className={`site-header fixed top-0 left-0 w-full z-30 
@@ -129,16 +143,7 @@ const Header = () => {
               </span>
               <a
                 className="text-(--color-primary)! cursor-pointer hover:underline"
-                onClick={async () => {
-                  try {
-                    await logout();
-                  } catch (err) {
-                    console.error("Logout failed", err);
-                  } finally {
-                    setUser(null);
-                    navigate("/");
-                  }
-                }}
+                onClick={handleLogout}
               >
                 Đăng xuất
               </a>

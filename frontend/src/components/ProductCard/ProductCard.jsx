@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "./ProductCard.css";
 import useCart from "../../context/useCart";
+import { FiShoppingCart, FiPlus } from "react-icons/fi"; // Dùng icon dấu cộng hoặc giỏ hàng
 
 const ProductCard = ({ product }) => {
   const { addItem } = useCart();
@@ -23,10 +24,14 @@ const ProductCard = ({ product }) => {
           </span>
 
           <button
-            className="btn btn--small"
-            onClick={() => addItem(product.id, 1)}
+            className="btn-icon"
+            onClick={(e) => {
+              e.preventDefault();
+              addItem(product.id, 1);
+            }}
+            title="Thêm vào giỏ hàng"
           >
-            Thêm vào giỏ
+            <FiShoppingCart size={20} />
           </button>
         </div>
       </div>
