@@ -1,7 +1,19 @@
+USE master;
+GO
+
+IF DB_ID('OnlineShopDB') IS NOT NULL
+BEGIN
+    ALTER DATABASE OnlineShopDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE OnlineShopDB;
+END
+GO
+
 CREATE DATABASE OnlineShopDB;
 GO
+
 USE OnlineShopDB;
 GO
+
 CREATE TABLE Branch (
     BranchID INT IDENTITY PRIMARY KEY,
     Name NVARCHAR(100) NOT NULL,
@@ -94,7 +106,7 @@ CREATE TABLE [Order] (
     VoucherList NVARCHAR(MAX) NULL,
 
     CONSTRAINT FK_Order_Customer FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
-    CONSTRAINT FK_Order_Voucher FOREIGN KEY (VoucherID) REFERENCES Voucher(VoucherID)
+--    CONSTRAINT FK_Order_Voucher FOREIGN KEY (VoucherID) REFERENCES Voucher(VoucherID)
 );
 CREATE TABLE Store (
     BranchID INT NOT NULL,

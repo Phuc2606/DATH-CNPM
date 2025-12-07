@@ -6,7 +6,7 @@ INSERT INTO Branch (Name, Address, Expense, AvailableCapacity) VALUES
 ('Branch HCM 2', 'District 3, HCM', 10000, 180),
 ('Branch Hanoi', 'Cau Giay, Hanoi', 12000, 150),
 ('Branch Danang', 'Hai Chau, Danang', 9000, 120),
-('Branch Can Tho', 'Ninh Kieu, Can Tho', 7000, 100);
+('Branch Can Tho', 'Ninh Kieu, Can Tho', 7000, 100);  
 
 INSERT INTO Category (CategoryID, Name, Icon) VALUES
 ('cat-1', N'Laptop', 'PiLaptopFill'),

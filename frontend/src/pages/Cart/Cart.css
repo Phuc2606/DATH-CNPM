@@ -2,7 +2,8 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", sans-serif;
   background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 50%, #e0f2fe 100%);
   min-height: 100vh;
 }
@@ -383,5 +384,65 @@
   .checkout-btn {
     font-size: 17px;
     padding: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .cart-container {
+    padding: 10px;
+  }
+
+  .cart-header h1 {
+    font-size: 20px;
+  }
+
+  .cart-item {
+    padding: 15px;
+    gap: 15px;
+    flex-direction: column; /* Xếp dọc từng món hàng */
+    align-items: flex-start;
+    position: relative;
+  }
+
+  .item-image {
+    width: 80px;
+    height: 80px;
+  }
+
+  /* Đưa ảnh và tên nằm ngang ở trên */
+  .cart-item {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .item-image {
+    grid-row: 1 / 3; /* Ảnh chiếm 2 dòng bên trái */
+  }
+
+  .item-details {
+    grid-column: 2;
+    padding-left: 0;
+  }
+
+  /* Bộ chỉnh số lượng và nút xóa nằm dưới */
+  .item-actions {
+    grid-column: 1 / 3;
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    border-top: 1px dashed #eee;
+    padding-top: 10px;
+  }
+
+  .remove-btn {
+    position: static; /* Reset vị trí nếu cần */
+  }
+
+  .quantity-control {
+    transform: scale(0.9); /* Thu nhỏ nút cộng trừ chút */
+    transform-origin: left;
   }
 }
