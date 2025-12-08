@@ -163,6 +163,19 @@ class Order {
       },
     };
   }
+
+  static async updateStatus(orderId, status, paymentStatus) {
+    const request = new sql.Request();
+    request.input("id", sql.Int, orderId);
+    request.input("status", sql.NVarChar, status);
+    request.input("payStatus", sql.NVarChar, paymentStatus);
+
+    await request.query(`
+      UPDATE [Order] 
+      SET Status = @status, PaymentStatus = @payStatus
+      WHERE OrderID = @id
+    `);
+  }
 }
 
 export default Order;
