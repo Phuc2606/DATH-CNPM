@@ -114,54 +114,31 @@ class Order {
     return res.recordset[0] || null;
   }
 
-  static async findWithPagination({ page = 1, limit = 10, search = "" }) {
+  static async findAll() {
     const request = new sql.Request();
-    const offset = (page - 1) * limit;
-
-    // Xử lý tìm kiếm (nếu có): Tìm theo ID đơn hoặc Tên khách
-    let whereClause = "WHERE 1=1";
-    if (search) {
-      // Tìm theo OrderID (số) hoặc Tên khách (chuỗi)
-      // Lưu ý: OrderID là số nên cần cast hoặc check kỹ, ở đây mình demo tìm theo tên khách cho dễ
-      whereClause += ` AND (c.Name LIKE @search OR Cast(o.OrderID as nvarchar) LIKE @search)`;
-      request.input("search", sql.NVarChar, `%${search}%`);
-    }
-
-    // 1. Query lấy dữ liệu trang hiện tại
-    const queryData = `
+    // Join với bảng Customer để lấy tên người đặt
+    const res = await request.query(`
       SELECT 
         o.OrderID, o.OrderDate, o.TotalAmount, o.Status, o.PaymentStatus, o.PaymentMethod,
         c.Name as CustomerName, c.Email
       FROM [Order] o
       LEFT JOIN Customer c ON o.CustomerID = c.CustomerID
-      ${whereClause}
       ORDER BY o.OrderDate DESC
-      OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
-    `;
+    `);
+    return res.recordset;
+  }
 
-    request.input("offset", sql.Int, offset);
-    request.input("limit", sql.Int, limit);
+  static async updateStatus(orderId, status, paymentStatus) {
+    const request = new sql.Request();
+    request.input("id", sql.Int, orderId);
+    request.input("status", sql.NVarChar, status);
+    request.input("payStatus", sql.NVarChar, paymentStatus);
 
-    // 2. Query đếm tổng số bản ghi (để tính số trang)
-    const queryCount = `
-      SELECT COUNT(*) as total 
-      FROM [Order] o
-      LEFT JOIN Customer c ON o.CustomerID = c.CustomerID
-      ${whereClause}
-    `;
-
-    const dataRes = await request.query(queryData);
-    const countRes = await request.query(queryCount);
-
-    return {
-      data: dataRes.recordset,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total: countRes.recordset[0].total,
-        totalPages: Math.ceil(countRes.recordset[0].total / limit),
-      },
-    };
+    await request.query(`
+      UPDATE [Order] 
+      SET Status = @status, PaymentStatus = @payStatus
+      WHERE OrderID = @id
+    `);
   }
 }
 
