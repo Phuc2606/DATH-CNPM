@@ -26,14 +26,6 @@ router.get("/profile", verifyToken, getProfile);
 router.put("/profile", verifyToken, updateProfile);
 router.get("/orders", verifyToken, getUserOrderHistory);
 
-// --- ADMIN QUẢN LÝ ---
-router.get("/", verifyToken, isAdmin, getAllUsers);
-router.put("/:id", verifyToken, isAdmin, updateUserById);
-router.delete("/:id", verifyToken, isAdmin, deleteUser);
-// --- QUẢN LÝ ĐÁNH GIÁ (ADMIN) ---
-router.get("/reviews", verifyToken, isAdmin, getAllReviewsAdmin);
-router.delete("/reviews/:id", verifyToken, isAdmin, deleteReview);
-
 //Cart Routes
 //------------------------------- Lấy, tạo giỏ hàng(Tính tổng giá trị giỏ hàng) -------------------------------
 router.get("/cart", verifyToken, getCart);
@@ -45,4 +37,12 @@ router.delete("/cart/items/:productId", verifyToken, removeItemFromCart);
 router.patch("/cart/items/:productId", verifyToken, updateItemQuantity);
 //------------------------------- Xóa toàn bộ giỏ hàng -------------------------------
 router.delete("/cart", verifyToken, clearCart);
+
+// --- ADMIN QUẢN LÝ ---
+router.get("/", verifyToken, isAdmin, getAllUsers);
+router.put("/:id", verifyToken, isAdmin, updateUserById);
+router.delete("/:id", verifyToken, isAdmin, deleteUser);
+// --- QUẢN LÝ ĐÁNH GIÁ (ADMIN) ---
+router.get("/reviews", verifyToken, isAdmin, getAllReviewsAdmin);
+router.delete("/reviews/:id", verifyToken, isAdmin, deleteReview);
 export default router;
