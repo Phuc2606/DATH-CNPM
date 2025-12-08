@@ -44,7 +44,7 @@ const OrderManager = () => {
       // Gọi service với tham số phân trang
       const res = await OrderService.getAllOrders({
         page: page,
-        limit: 10, // 10 đơn mỗi trang
+        limit: 8,
         search: searchTerm,
       });
 
