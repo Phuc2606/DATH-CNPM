@@ -13,6 +13,7 @@ import {
 import BranchService from "../../services/branchService";
 import ProductService from "../../services/productService";
 
+import { toast } from "react-toastify";
 // Cấu hình URL (Sửa port nếu cần)
 const UPLOAD_URL = "http://localhost:5000";
 
@@ -69,15 +70,15 @@ const InventoryManager = () => {
     try {
       if (isEditing) {
         await BranchService.updateBranch(branchForm.BranchID, branchForm);
-        alert("Cập nhật chi nhánh thành công!");
+        toast.success("Cập nhật chi nhánh thành công!");
       } else {
         await BranchService.createBranch(branchForm);
-        alert("Thêm chi nhánh thành công!");
+        toast.success("Thêm chi nhánh thành công!");
       }
       setShowBranchModal(false);
       fetchBranches();
     } catch (err) {
-      alert("Lỗi: " + (err.response?.data?.message || err.message));
+      toast.error("Lỗi: " + (err.response?.data?.message || err.message));
     }
   };
 
@@ -106,7 +107,7 @@ const InventoryManager = () => {
         await BranchService.deleteBranch(id);
         fetchBranches();
       } catch (err) {
-        alert("Lỗi xóa: " + err.message);
+        toast.error("Lỗi xóa: " + err.message);
       }
     }
   };
@@ -142,10 +143,10 @@ const InventoryManager = () => {
     try {
       if (transactionMode === "import") {
         await BranchService.importStock(payload);
-        alert("Nhập kho thành công!");
+        toast.success("Nhập kho thành công!");
       } else {
         await BranchService.returnStock(payload);
-        alert("Xuất trả kho tổng thành công!");
+        toast.success("Xuất trả kho tổng thành công!");
       }
 
       // Reload lại kho
@@ -157,7 +158,7 @@ const InventoryManager = () => {
 
       // Giữ form mở để nhập tiếp nếu cần, hoặc đóng: setShowTransactionForm(false);
     } catch (err) {
-      alert("Lỗi: " + (err.response?.data?.message || err.message));
+      toast.error("Lỗi: " + (err.response?.data?.message || err.message));
     }
   };
 

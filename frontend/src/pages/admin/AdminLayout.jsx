@@ -4,15 +4,12 @@ import {
   IconLayoutDashboard,
   IconBox, // Sản phẩm (#3)
   IconShoppingCart, // Đơn hàng (#3)
-  IconArticle, // Tin tức (#4)
   IconStar, // Bình luận/Đánh giá (#4)
-  IconMail, // Liên hệ khách hàng (#1)
   IconCategory, // Hỏi đáp/FAQ (#2)
   IconTruckDelivery, // Cấu hình thông tin trang (#1, #2)
   IconUsers, // Quản lý người dùng (#1, #2)
   IconBuildingWarehouse,
   IconTicket,
-  IconCalendarEvent,
 } from "@tabler/icons-react";
 import AdminUserSection from "../../components/admin/AdminUserSection";
 
@@ -67,13 +64,6 @@ const AdminLayout = () => {
   }, []);
 
   const menuItems = [
-    // --- TỔNG QUAN ---
-    {
-      label: "Dashboard",
-      icon: <IconLayoutDashboard size={20} />,
-      path: "/admin",
-    },
-
     // --- NHÓM 1: KHO & SẢN PHẨM (Inventory) ---
     // Bổ sung: Category, Supplier, Branch
     {
@@ -112,18 +102,13 @@ const AdminLayout = () => {
     {
       label: "Khách hàng", // Quản lý user role Customer
       icon: <IconUsers size={20} />,
-      path: "/admin/customers",
+      path: "/admin/users",
     },
 
     // --- NHÓM 3: MARKETING (Mới thêm) ---
     // Map với bảng Voucher & SaleOffEvent
     {
       header: "MARKETING",
-    },
-    {
-      label: "Mã giảm giá",
-      icon: <IconTicket size={20} />,
-      path: "/admin/vouchers",
     },
 
     {
@@ -134,7 +119,7 @@ const AdminLayout = () => {
   ];
 
   const currentItem = menuItems.find((item) => item.path === location.pathname);
-  const pageTitle = currentItem ? currentItem.label : "Trang quản trị";
+  const pageTitle = currentItem ? currentItem.label : "Sản phẩm";
 
   return (
     <div className="page">
@@ -154,14 +139,11 @@ const AdminLayout = () => {
             </Link>
           </h1>
 
-          {/* === KHẮC PHỤC LỖI Ở ĐÂY === */}
           <div
             className={`collapse navbar-collapse d-lg-block ${
-              // 1. Thêm lại d-lg-block để hiện trên PC
               isMobileMenuOpen ? "show" : ""
             }`}
             id="sidebar-menu"
-            // 2. Thêm style inline này để ép menu hiện trên Mobile bất chấp Tailwind
             style={{ display: isMobileMenuOpen ? "block" : undefined }}
           >
             <ul className="navbar-nav ps-2 pt-3">

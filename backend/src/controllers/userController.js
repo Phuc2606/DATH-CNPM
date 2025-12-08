@@ -43,22 +43,64 @@ export const updateProfile = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select("-password");
-    res.status(200).json(users);
+    const users = await User.findAll();
+    const usersJson = users.map((u) => u.toJSON());
+    res.status(200).json(usersJson);
   } catch (error) {
+    console.error(error);
     res.status(500).json({
-      message: "Failed to get users",
+      message: "Lỗi lấy danh sách user",
       error: error.message,
     });
   }
 };
+
+export const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await User.deleteById(id);
+    res.json({ message: "Xóa người dùng thành công" });
+  } catch (error) {
+    // Check lỗi ràng buộc khóa ngoại (Foreign Key)
+    if (error.number === 547) {
+      return res.status(400).json({
+        message: "Không thể xóa: User này đã có dữ liệu đơn hàng/giỏ hàng!",
+      });
+    }
+    res.status(500).json({ message: "Lỗi xóa user", error: error.message });
+  }
+};
+
+export const updateUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body; // { name, phone, address, role... }
+
+    // Gọi Model
+    const updatedUser = await User.findByIdAndUpdate(id, updateData);
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      message: "Cập nhật thành công",
+      user: updatedUser.toJSON(),
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Lỗi cập nhật user", error: error.message });
+  }
+};
+
 export const getUserOrderHistory = async (req, res) => {
   try {
     const userId = req.user.id;
 
     const pool = await sql.connect();
     const request = pool.request();
-    
+
     request.input("userId", sql.Int, userId);
 
     const result = await request.query(`
@@ -90,13 +132,15 @@ export const getUserOrderHistory = async (req, res) => {
 
     const ordersMap = {};
 
-    result.recordset.forEach(row => {
+    result.recordset.forEach((row) => {
       const orderId = row.OrderID;
 
       if (!ordersMap[orderId]) {
-        let name = "", phone = "", address = "";
+        let name = "",
+          phone = "",
+          address = "";
         if (row.RecipientInfo) {
-          const parts = row.RecipientInfo.split("|").map(p => p.trim());
+          const parts = row.RecipientInfo.split("|").map((p) => p.trim());
           name = parts[0] || "";
           phone = parts[1] || "";
           address = parts[2] || "";
@@ -112,9 +156,9 @@ export const getUserOrderHistory = async (req, res) => {
             Subtotal: row.Subtotal,
             PaymentMethod: row.PaymentMethod,
             RecipientInfo: row.RecipientInfo,
-            recipient: { name, phone, address }
+            recipient: { name, phone, address },
           },
-          items: []
+          items: [],
         };
       }
       if (row.ProductID) {
@@ -122,7 +166,7 @@ export const getUserOrderHistory = async (req, res) => {
           ProductName: row.ProductName || "Sản phẩm đã xóa",
           ImageUrl: row.ImageUrl || "/placeholder.jpg",
           Quantity: row.Quantity,
-          UnitPrice: row.FinalPrice || row.UnitPrice
+          UnitPrice: row.FinalPrice || row.UnitPrice,
         });
       }
     });

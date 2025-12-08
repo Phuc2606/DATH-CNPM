@@ -30,7 +30,6 @@ const AdminUserSection = () => {
   // 2. Hàm đăng xuất
   const handleLogout = async () => {
     try {
-      // Gọi API Logout (Nhớ sửa đúng đường dẫn backend của bạn)
       await logout();
 
       setUser(null);
@@ -41,7 +40,6 @@ const AdminUserSection = () => {
     }
   };
 
-  // --- GIAO DIỆN CHUẨN TABLER ---
   if (!user) {
     return (
       <div className="mt-auto p-3">
@@ -56,7 +54,6 @@ const AdminUserSection = () => {
   }
 
   return (
-    // Đặt ở dưới cùng Sidebar (mt-auto)
     <div className="mt-auto p-3 border-top">
       <div className="d-flex align-items-center gap-2">
         {/* Avatar */}

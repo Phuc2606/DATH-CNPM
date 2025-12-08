@@ -10,15 +10,9 @@ import Register from "./pages/Register/Register";
 import StoreLocator from "./pages/Stores/StoreLocator";
 
 import AdminLayout from "./pages/admin/AdminLayout";
-import Dashboard from "./pages/admin/DashBoard";
 import ProductManager from "./pages/admin/ProductManager";
 import UserManager from "./pages/admin/UserManager";
-import SettingsManager from "./pages/admin/SettingsManager";
 import OrderManager from "./pages/admin/OrderManager";
-import NewsManager from "./pages/admin/NewsManager";
-import CommentsManager from "./pages/admin/CommentsManager";
-import ContactsManager from "./pages/admin/ContactsManager";
-import FAQsManager from "./pages/admin/FAQsManager";
 import ProtectedRoute from "./components/Auth/ProtectedRoute";
 import CategoriesManager from "./pages/admin/CategoriesManager";
 import InventoryManager from "./pages/admin/InventoryManager";
@@ -54,16 +48,11 @@ const App = () => {
 
         <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
           <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<Dashboard />} />
+            <Route index element={<ProductManager />} />
 
             <Route path="users" element={<UserManager />} />
             <Route path="products" element={<ProductManager />} />
-            <Route path="settings" element={<SettingsManager />} />
             <Route path="orders" element={<OrderManager />} />
-            <Route path="news" element={<NewsManager />} />
-            <Route path="comments" element={<CommentsManager />} />
-            <Route path="contacts" element={<ContactsManager />} />
-            <Route path="faqs" element={<FAQsManager />} />
             <Route path="categories" element={<CategoriesManager />} />
             <Route path="inventory" element={<InventoryManager />} />
             <Route path="suppliers" element={<SupplierManager />} />
