@@ -7,6 +7,7 @@ import {
   IconCategory,
 } from "@tabler/icons-react";
 import CategoryService from "../../services/categoryService";
+import { toast } from "react-toastify";
 
 const CategoriesManager = () => {
   const [categories, setCategories] = useState([]);
@@ -84,18 +85,18 @@ const CategoriesManager = () => {
       if (isEditing) {
         // Gọi Service Update
         await CategoryService.updateCategory(formData.CategoryID, formData);
-        alert("Cập nhật thành công!");
+        toast.success("Cập nhật thành công!");
       } else {
         // Gọi Service Create
         await CategoryService.createCategory(formData);
-        alert("Thêm mới thành công!");
+        toast.success("Thêm mới thành công!");
       }
       setShowModal(false);
       fetchCategories(1);
     } catch (err) {
       console.error(err);
       const msg = err.response?.data?.message || err.message || "Có lỗi xảy ra";
-      alert("Lỗi: " + msg);
+      toast.error("Lỗi: " + msg);
     }
   };
 
@@ -104,12 +105,12 @@ const CategoriesManager = () => {
       try {
         // Gọi Service Delete
         await CategoryService.deleteCategory(id);
-        alert("Đã xóa!");
+        toast.success("Đã xóa!");
         fetchCategories(1);
       } catch (err) {
         const msg =
           err.response?.data?.message || err.message || "Không thể xóa";
-        alert("Lỗi: " + msg);
+        toast.error("Lỗi: " + msg);
       }
     }
   };

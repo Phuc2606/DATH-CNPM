@@ -83,17 +83,20 @@ class User {
     request.input("id", sql.Int, id);
 
     const fieldMap = {
-      fullName: { column: "Name", type: sql.NVarChar(100) },
+      // Map key gửi từ FE sang cột trong DB
+      name: { column: "Name", type: sql.NVarChar(100) }, // Sửa fullName -> name cho đồng bộ
+      fullName: { column: "Name", type: sql.NVarChar(100) }, // Giữ lại để tương thích ngược
       phone: { column: "PhoneNumber", type: sql.NVarChar(20) },
       address: { column: "Address", type: sql.NVarChar(255) },
       dateOfBirth: { column: "DateOfBirth", type: sql.Date },
       gender: { column: "Gender", type: sql.NVarChar(10) },
+      role: { column: "Role", type: sql.NVarChar(20) }, // [MỚI] Thêm Role
     };
 
     const updates = [];
 
     for (const [key, value] of Object.entries(updateData)) {
-      if (value === undefined || value === null || value === "") continue;
+      if (value === undefined || value === null) continue; // Cho phép string rỗng ""
 
       const field = fieldMap[key];
       if (field) {
@@ -107,17 +110,32 @@ class User {
       }
     }
 
-    if (updates.length === 0) {
-      return await User.findById(id);
-    }
+    if (updates.length === 0) return await User.findById(id);
 
     const query = `
-    UPDATE Customer 
-    SET ${updates.join(", ")}
-    WHERE CustomerID = @id
-  `;
+      UPDATE Customer 
+      SET ${updates.join(", ")}
+      WHERE CustomerID = @id
+    `;
     await request.query(query);
     return await User.findById(id);
+  }
+
+  static async findAll() {
+    const request = new sql.Request();
+    const res = await request.query(`
+      SELECT CustomerID, Name, Email, PhoneNumber, Address, Role, Gender, DateOfBirth 
+      FROM Customer
+      ORDER BY CustomerID DESC
+    `);
+    return res.recordset.map((row) => new User(row));
+  }
+
+  static async deleteById(id) {
+    const request = new sql.Request();
+    request.input("id", sql.Int, id);
+    await request.query("DELETE FROM Customer WHERE CustomerID = @id");
+    return true;
   }
 }
 

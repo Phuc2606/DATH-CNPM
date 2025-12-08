@@ -12,6 +12,7 @@ import {
 } from "@tabler/icons-react";
 import SupplierService from "../../services/supplierService";
 import ProductService from "../../services/productService";
+import { toast } from "react-toastify";
 
 const SupplierManager = () => {
   const [suppliers, setSuppliers] = useState([]);
@@ -82,16 +83,16 @@ const SupplierManager = () => {
     try {
       if (isEditing) {
         await SupplierService.updateSupplier(formData.SupplierID, formData);
-        alert("Cập nhật thành công!");
+        toast.success("Cập nhật thành công!");
       } else {
         await SupplierService.createSupplier(formData);
-        alert("Thêm mới thành công!");
+        toast.success("Thêm mới thành công!");
       }
       setShowModal(false);
       fetchSuppliers();
     } catch (err) {
       const msg = err.response?.data?.message || err.message || "Có lỗi xảy ra";
-      alert("Lỗi: " + msg);
+      toast.error("Lỗi: " + msg);
     }
   };
 
@@ -99,11 +100,11 @@ const SupplierManager = () => {
     if (window.confirm("Bạn có chắc muốn xóa nhà cung cấp này không?")) {
       try {
         await SupplierService.deleteSupplier(id);
-        alert("Đã xóa!");
+        toast.success("Đã xóa!");
         fetchSuppliers();
       } catch (err) {
         const msg = err.response?.data?.message || err.message;
-        alert("Lỗi: " + msg);
+        toast.error("Lỗi: " + msg);
       }
     }
   };
@@ -122,7 +123,7 @@ const SupplierManager = () => {
       setShowLinkModal(true);
     } catch (err) {
       console.error(err);
-      alert("Lỗi tải danh sách sản phẩm");
+      toast.error("Lỗi tải danh sách sản phẩm");
     }
   };
 
@@ -141,10 +142,10 @@ const SupplierManager = () => {
         ProductID: parseInt(linkData.ProductID),
       });
       fetchLinkedProducts(linkData.SupplierID);
-      alert("Liên kết thành công!");
+      toast.success("Liên kết thành công!");
     } catch (err) {
       const msg = err.response?.data?.message || err.message;
-      alert("Lỗi: " + msg);
+      toast.error("Lỗi: " + msg);
     }
   };
 
@@ -159,9 +160,9 @@ const SupplierManager = () => {
       });
       // Không cần alert cho đỡ phiền, chỉ cần load lại list
       fetchLinkedProducts(linkData.SupplierID);
-      alert("Hủy liên kết thành công!");
+      toast.success("Hủy liên kết thành công!");
     } catch (err) {
-      alert("Lỗi: " + (err.response?.data?.message || err.message));
+      toast.error("Lỗi: " + (err.response?.data?.message || err.message));
     }
   };
   return (

@@ -34,6 +34,15 @@ export const getAllUsers = async () => {
   }
 };
 
+export const updateUser = async (id, userData) => {
+  try {
+    const response = await apiClient.put(`/users/${id}`, userData);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
 // Xóa user
 export const deleteUser = async (userId) => {
   try {

@@ -9,10 +9,8 @@ import {
 const BranchCard = ({ store }) => {
   return (
     <div className="group flex flex-col bg-white rounded-2xl shadow-sm hover:shadow-lg border border-gray-200 transition-all duration-300 p-6 h-full">
-      {/* 1. Card Header: Icon lớn + Tên Branch */}
       <div className="flex items-start justify-between mb-6">
         <div className="flex items-center gap-4">
-          {/* Icon điểm nhấn */}
           <div className="w-12 h-12 flex shrink-0 items-center justify-center bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
             <IconMapPin size={24} stroke={1.5} />
           </div>
@@ -31,21 +29,17 @@ const BranchCard = ({ store }) => {
         </div>
       </div>
 
-      {/* 2. Card Body: Thông tin chi tiết */}
       <div className="flex-1 space-y-4 text-gray-600 mb-6">
-        {/* Địa chỉ */}
         <div className="flex items-start gap-3">
           <IconMapPin className="shrink-0 text-gray-400 mt-1" size={20} />
           <span className="leading-relaxed">{store.Address}</span>
         </div>
 
-        {/* Giờ mở cửa */}
         <div className="flex items-center gap-3 py-2 border-t border-b border-gray-50">
           <IconClock className="shrink-0 text-gray-400" size={20} />
           <span>08:00 - 22:00 (Tất cả các ngày)</span>
         </div>
 
-        {/* Số điện thoại */}
         {store.Phone ? (
           <div className="flex items-center gap-3">
             <IconPhone className="shrink-0 text-gray-400" size={20} />
@@ -64,7 +58,6 @@ const BranchCard = ({ store }) => {
         )}
       </div>
 
-      {/* 3. Card Footer: Nút chỉ đường */}
       <div>
         <a
           href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(

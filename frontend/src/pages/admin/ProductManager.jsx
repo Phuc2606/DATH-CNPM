@@ -9,6 +9,7 @@ import {
   IconPhoto,
   IconBox,
 } from "@tabler/icons-react";
+import { toast } from "react-toastify";
 
 const UPLOAD_URL = "http://localhost:5000";
 
@@ -140,16 +141,16 @@ const ProductManager = () => {
 
       if (isEditing) {
         await productService.updateProduct(formData.ProductID, data);
-        alert("Cập nhật thành công!");
+        toast.success("Cập nhật thành công!");
       } else {
         await productService.createProduct(data);
-        alert("Thêm mới thành công!");
+        toast.success("Thêm mới thành công!");
       }
 
       setShowModal(false);
       fetchProducts();
     } catch (err) {
-      alert("Lỗi: " + (err.response?.data?.message || err.message));
+      toast.error("Lỗi: " + (err.response?.data?.message || err.message));
     }
   };
 
@@ -157,10 +158,10 @@ const ProductManager = () => {
     if (window.confirm("Bạn có chắc chắn muốn xóa?")) {
       try {
         await productService.deleteProduct(id);
-        alert("Đã xóa!");
+        toast.success("Đã xóa!");
         fetchProducts();
       } catch (err) {
-        alert("Lỗi xóa: " + (err.response?.data?.message || err.message));
+        toast.error("Lỗi xóa: " + (err.response?.data?.message || err.message));
       }
     }
   };

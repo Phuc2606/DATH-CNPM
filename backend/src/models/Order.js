@@ -44,7 +44,11 @@ class Order {
       .input("shippingFee", sql.Decimal(18, 2), orderData.ShippingFee || 0)
       .input("total", sql.Decimal(18, 2), orderData.TotalAmount)
       .input("paymentMethod", sql.NVarChar, orderData.PaymentMethod)
-      .input("paymentStatus", sql.NVarChar, orderData.PaymentStatus || "Pending")
+      .input(
+        "paymentStatus",
+        sql.NVarChar,
+        orderData.PaymentStatus || "Pending"
+      )
       .input("status", sql.NVarChar, orderData.Status || "Pending")
       .input("address", sql.NVarChar, orderData.RecipientInfo)
       .input("note", sql.NVarChar, orderData.Note || null)
@@ -56,17 +60,15 @@ class Order {
           if (typeof list === "string") {
             try {
               list = JSON.parse(list);
-            } catch (e) {
-            }
+            } catch (e) {}
           }
           if (Array.isArray(list)) {
-            return list.map(v => v.code).join(",");
+            return list.map((v) => v.code).join(",");
           }
 
           return list || null;
         })()
-      )
-      .query(`
+      ).query(`
         INSERT INTO [Order] 
           (CustomerID, Subtotal, DiscountAmount, ShippingFee, TotalAmount,
            PaymentMethod, PaymentStatus, Status, RecipientInfo, Note, VoucherList)
@@ -79,7 +81,7 @@ class Order {
     const row = result.recordset[0];
     return {
       OrderID: row.OrderID,
-      OrderDate: row.OrderDate
+      OrderDate: row.OrderDate,
     };
   }
 
@@ -91,8 +93,11 @@ class Order {
       .input("productId", sql.Int, itemData.ProductID)
       .input("quantity", sql.Int, itemData.Quantity)
       .input("unitPrice", sql.Decimal(18, 2), itemData.UnitPrice)
-      .input("finalPrice", sql.Decimal(18, 2), itemData.FinalPrice || itemData.UnitPrice)
-      .query(`
+      .input(
+        "finalPrice",
+        sql.Decimal(18, 2),
+        itemData.FinalPrice || itemData.UnitPrice
+      ).query(`
         INSERT INTO OrderItem (OrderID, ProductID, Quantity, UnitPrice, FinalPrice)
         VALUES (@orderId, @productId, @quantity, @unitPrice, @finalPrice)
       `);
@@ -107,6 +112,56 @@ class Order {
     `);
 
     return res.recordset[0] || null;
+  }
+
+  static async findWithPagination({ page = 1, limit = 10, search = "" }) {
+    const request = new sql.Request();
+    const offset = (page - 1) * limit;
+
+    // Xử lý tìm kiếm (nếu có): Tìm theo ID đơn hoặc Tên khách
+    let whereClause = "WHERE 1=1";
+    if (search) {
+      // Tìm theo OrderID (số) hoặc Tên khách (chuỗi)
+      // Lưu ý: OrderID là số nên cần cast hoặc check kỹ, ở đây mình demo tìm theo tên khách cho dễ
+      whereClause += ` AND (c.Name LIKE @search OR Cast(o.OrderID as nvarchar) LIKE @search)`;
+      request.input("search", sql.NVarChar, `%${search}%`);
+    }
+
+    // 1. Query lấy dữ liệu trang hiện tại
+    const queryData = `
+      SELECT 
+        o.OrderID, o.OrderDate, o.TotalAmount, o.Status, o.PaymentStatus, o.PaymentMethod,
+        c.Name as CustomerName, c.Email
+      FROM [Order] o
+      LEFT JOIN Customer c ON o.CustomerID = c.CustomerID
+      ${whereClause}
+      ORDER BY o.OrderDate DESC
+      OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
+    `;
+
+    request.input("offset", sql.Int, offset);
+    request.input("limit", sql.Int, limit);
+
+    // 2. Query đếm tổng số bản ghi (để tính số trang)
+    const queryCount = `
+      SELECT COUNT(*) as total 
+      FROM [Order] o
+      LEFT JOIN Customer c ON o.CustomerID = c.CustomerID
+      ${whereClause}
+    `;
+
+    const dataRes = await request.query(queryData);
+    const countRes = await request.query(queryCount);
+
+    return {
+      data: dataRes.recordset,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total: countRes.recordset[0].total,
+        totalPages: Math.ceil(countRes.recordset[0].total / limit),
+      },
+    };
   }
 }
 

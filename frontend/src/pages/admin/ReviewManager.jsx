@@ -5,6 +5,7 @@ import {
   IconStar,
   IconMessageCircle,
 } from "@tabler/icons-react";
+import { toast } from "react-toastify";
 
 const ReviewManager = () => {
   const [reviews, setReviews] = useState([]);
@@ -48,7 +49,7 @@ const ReviewManager = () => {
     });
 
     const data = await res.json();
-    alert(data.message);
+    toast.success(data.message);
 
     fetchReviews();
   };
